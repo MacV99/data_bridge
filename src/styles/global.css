@@ -1,0 +1,140 @@
+@import url("https://fonts.googleapis.com/css2?family=Recursive:wght@300..1000&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --clr-main: #3e484d;
+
+  --clr-dark: #121617;
+  --clr-dark2: #181d1f;
+
+  --clr-gray: #646464;
+  --clr-text: #646464;
+  --clr-border: #d8dbdc;
+
+  --clr-white: #ebeded;
+
+  --transition: 0.11s ease;
+  --font-recursive: 'Recursive', sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  line-height: normal;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  font-family: var(--font-montserrat)
+}
+
+body {
+  min-height: 100dvh;
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background-color: var(--clr-white);
+  color: var(--clr-dark);
+}
+
+main {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+li,
+a {
+  list-style: none;
+  text-decoration: none;
+}
+
+i.bi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: 600;
+  letter-spacing: 2px;
+  padding-left: 2px;
+}
+
+p {
+  color: var(--clr-text);
+}
+
+/* FLEX ROW Y FLEX COLUMN */
+.flex-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+
+
+section,
+footer {
+  padding: 40px 20px;
+  gap: 18px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+section>*,
+footer>* {
+  max-width: 1000px;
+}
+
+button,
+.boton,
+.boton2 {
+  padding: 11px 14px 10px 14px;
+  border-radius: 50px;
+  font-size: .9rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  padding-left: 16px;
+  text-transform: uppercase;
+  border: solid 2px #fff;
+  background-color: #fff;
+  color: var(--clr-dark);
+}
+
+.boton2 {
+  background-color: transparent;
+  border-color: #fff;
+  color: #fff;
+}
+
+@media (hover: hover) {
+
+  button:hover,
+  .boton:hover {
+    background-color: var(--clr-white);
+  }
+
+  .boton2:hover {
+    background-color: var(--clr-dark2);
+  }
+}

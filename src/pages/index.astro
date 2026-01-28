@@ -1,0 +1,76 @@
+---
+import Layout1 from "../layouts/Layout1.astro";
+
+import Hero from "../sections/hero.astro";
+import MisionVision from "../components/mision-vision.astro";
+---
+
+<Layout1 title="Home">
+	<Hero />
+
+	<section id="puntos">
+		<div class="flex-row">
+			<div>
+				<i class="bi bi-pin-angle-fill"></i>
+				<p>Registro personal de experiencias</p>
+			</div>
+			<div>
+				<i class="bi bi-star-fill"></i>
+				<p>Calificación precisa por plato</p>
+			</div>
+			<div>
+				<i class="bi bi-people-fill"></i>
+				<p>Red social de recomendaciones reales</p>
+			</div>
+			<div>
+				<i class="bi bi-fork-knife"></i>
+				<p>Ecosistema para restaurantes oficiales</p>
+			</div>
+			<div>
+				<i class="bi bi-clipboard-data-fill"></i>
+				<p>Datos y estadísticas gastronómicas reales</p>
+			</div>
+		</div>
+	</section>
+	<MisionVision />
+</Layout1>
+
+<style>
+	#puntos {
+	}
+	#puntos > div {
+		flex-wrap: wrap;
+		gap: 10px;
+		justify-content: center;
+	}
+
+	#puntos > div > div {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		max-width: fit-content;
+		padding: 10px 15px;
+		background-color: #fff;
+		border: solid 1px var(--clr-border);
+		border-radius: 15px;
+		gap: 10px;
+	}
+
+	#puntos .bi {
+		font-size: 1.4rem;
+		color: var(--clr-dark);
+		transition: var(--transition);
+	}
+
+	@media (min-width: 750px) {
+		#puntos > div > div {
+		}
+	}
+
+	@media (hover: hover) {
+		#puntos > div > div:hover .bi,
+		#puntos > div > div:hover p {
+			color: var(--clr-main);
+		}
+	}
+</style>
