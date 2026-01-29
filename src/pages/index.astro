@@ -1,105 +1,333 @@
 ---
 import Layout1 from "../layouts/Layout1.astro";
 import Header from "../sections/header.astro";
-import CreateCity from "../components/create_city.astro";
+import AddCity from "../components/create_city.astro";
 ---
 
 <Layout1 title="Dashboard">
-	<Header />
-	<CreateCity />
-	<section id="dashboard" class="flex-row">
-		<!-- <div class="automatizacion flex-column">
-      <h5>NOMBRE CIUDAD 1</h5>
-      <ul class="bloque flex-column">
-        <li class="img1 flex-column">
-          <h6>IMAGEN 1</h6>
-          <img src="" alt="" />
-        </li>
-        <li class="text1 flex-column">
-          <h6>TEXTO 1</h6>
-          <p>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Deserunt
-            laudantium harum sint cupiditate asperiores voluptatem! Ratione
-            ducimus itaque dolorum quia, nulla officia. Aliquam explicabo eos
-            aperiam officiis alias, minima tempora.
-          </p>
-        </li>
-      </ul>
-      <ul class="bloque flex-column">
-        <li class="img2 flex-column">
-          <h6>IMAGEN 2</h6>
-          <img src="" alt="" />
-        </li>
-        <li class="text2 flex-column">
-          <h6>TEXTO 2</h6>
-          <p>
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto
-            vitae in odio deserunt veniam atque cupiditate quod, doloremque esse
-            alias animi quia omnis laboriosam, tenetur adipisci, quis
-            perferendis numquam a?
-          </p>
-        </li>
-      </ul>
-    </div>
-
-    <div class="automatizacion flex-column">
-      <h5>NOMBRE CIUDAD 2</h5>
-      <ul class="bloque flex-column">
-        <li class="img2 flex-column">
-          <h6>IMAGEN 1</h6>
-          <img src="" alt="" />
-        </li>
-        <li class="text1 flex-column">
-          <h6>TEXTO 1</h6>
-          <p>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Deserunt
-            laudantium harum sint cupiditate asperiores voluptatem! Ratione
-            ducimus itaque dolorum quia, nulla officia. Aliquam explicabo eos
-            aperiam officiis alias, minima tempora.
-          </p>
-        </li>
-      </ul>
-      <ul class="bloque flex-column">
-        <li class="img2 flex-column">
-          <h6>IMAGEN 2</h6>
-          <img src="" alt="" />
-        </li>
-        <li class="text2 flex-column">
-          <h6>TEXTO 2</h6>
-          <p>
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto
-            vitae in odio deserunt veniam atque cupiditate quod, doloremque esse
-            alias animi quia omnis laboriosam, tenetur adipisci, quis
-            perferendis numquam a?
-          </p>
-        </li>
-      </ul>
-    </div> -->
-	</section>
+  <Header />
+  <AddCity />
+  <section id="dashboard" class="flex-row">
+    <!-- Las campañas se renderizan dinámicamente aquí -->
+  </section>
 </Layout1>
 
+<!-- ESTILOS ESTÁTICOS - Section del dashboard -->
 <style>
-	#dashboard {
-		padding: 30px;
-	}
+  #dashboard {
+    padding: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+  }
 
-	.automatizacion {
-		background-color: var(--clr-dark2);
-		padding: 15px 20px;
-		width: 500px;
-		gap: 5px;
-	}
+  /* Estado vacío */
+  .empty-state {
+    width: 100%;
+    padding: 60px 20px;
+    gap: 15px;
+    color: var(--clr-gray);
+  }
 
-	.bloque {
-		padding: 10px;
-		width: 100%;
-		gap: 5px;
-		background-color: var(--clr-dark);
-	}
+  .empty-state i {
+    font-size: 3rem;
+  }
 
-	li {
-		border: solid 1px var(--clr-gray);
-		width: 100%;
-		padding: 5px;
-	}
+  .empty-state h4 {
+    color: var(--clr-text);
+  }
 </style>
+
+<!-- ESTILOS DINÁMICOS - Cards de campañas creadas por JS -->
+<style is:inline>
+  /* Card de campaña */
+  .campaign-card {
+    background-color: var(--clr-dark2);
+    padding: 20px;
+    width: 550px;
+    max-width: 100%;
+    gap: 15px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .campaign-card .delete-campaign {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: var(--clr-gray);
+    cursor: pointer;
+    font-size: 1.3rem;
+    padding: 5px;
+    transition: var(--transition);
+  }
+
+  .campaign-card .delete-campaign:hover {
+    color: var(--clr-main);
+  }
+
+  /* Header de la card */
+  .campaign-header {
+    width: 100%;
+    gap: 5px;
+    padding-bottom: 15px;
+    border-bottom: solid 1px var(--clr-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .campaign-header h5 {
+    color: var(--clr-main);
+    font-size: 1.1rem;
+  }
+
+  .campaign-header p {
+    font-size: 0.85rem;
+    color: var(--clr-gray);
+  }
+
+  /* Bloque de dupla en el dashboard */
+  .bloque {
+    padding: 12px;
+    width: 100%;
+    gap: 10px;
+    background-color: var(--clr-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .bloque > h6 {
+    width: 100%;
+    color: var(--clr-main);
+    font-size: 0.8rem;
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  /* Contenedor horizontal para imagen y texto */
+  .bloque-content {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  /* Items individuales (imagen y texto) */
+  .bloque-item {
+    flex: 1;
+    border: solid 1px var(--clr-gray);
+    padding: 10px;
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .bloque-item h6 {
+    width: 100%;
+    color: var(--clr-text);
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-bottom: 5px;
+    text-align: left;
+  }
+
+  .bloque-item img {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    border: solid 1px var(--clr-border);
+  }
+
+  .bloque-item p {
+    width: 100%;
+    padding: 8px;
+    background-color: var(--clr-dark2);
+    border: solid 1px var(--clr-border);
+    color: var(--clr-text);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .bloque-item button {
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    gap: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bloque-item button i {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .bloque-content {
+      flex-direction: column;
+    }
+
+    .campaign-card {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  //@ts-nocheck
+
+  const $dashboard = document.getElementById("dashboard");
+
+  // Cargar campañas al iniciar
+  document.addEventListener("DOMContentLoaded", () => {
+    renderCampaigns();
+  });
+
+  // Escuchar cuando se añade una nueva campaña
+  window.addEventListener("campaignAdded", () => {
+    renderCampaigns();
+  });
+
+  function renderCampaigns() {
+    const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+
+    if (campaigns.length === 0) {
+      $dashboard.innerHTML = `
+        <div class="empty-state flex-column">
+          <i class="bi bi-inbox"></i>
+          <h4>No hay campañas aún</h4>
+          <p>Haz clic en el botón + para crear tu primera campaña</p>
+        </div>
+      `;
+      return;
+    }
+
+    $dashboard.innerHTML = campaigns
+      .map(
+        (campaign) => `
+      <div class="campaign-card" data-id="${campaign.id}">
+        <i class="bi bi-trash delete-campaign" data-id="${campaign.id}"></i>
+        
+        <div class="campaign-header">
+          <h5>${campaign.cityName.toUpperCase()}</h5>
+          <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
+        </div>
+
+        ${campaign.duplas
+          .map(
+            (dupla, index) => `
+          <div class="bloque">
+            <h6>DUPLA ${index + 1}</h6>
+            
+            <div class="bloque-content">
+              <div class="bloque-item">
+                <h6>IMAGEN ${index + 1}</h6>
+                <img src="${dupla.image}" alt="Imagen ${index + 1}" />
+                <button class="boton download-img" data-img="${dupla.image}" data-name="${campaign.cityName}_img${index + 1}">
+                  <i class="bi bi-download"></i>
+                
+                </button>
+              </div>
+
+              <div class="bloque-item">
+                <h6>TEXTO ${index + 1}</h6>
+                <p>${escapeHtml(dupla.text)}</p>
+                <button class="boton copy-text" data-text="${escapeHtml(dupla.text)}">
+                  <i class="bi bi-clipboard"></i>
+                  
+                </button>
+              </div>
+            </div>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    `,
+      )
+      .join("");
+
+    // Añadir event listeners
+    addEventListeners();
+  }
+
+  function addEventListeners() {
+    // Copiar texto
+    document.querySelectorAll(".copy-text").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const text = e.currentTarget.dataset.text;
+        navigator.clipboard.writeText(text).then(() => {
+          const originalText = e.currentTarget.innerHTML;
+          e.currentTarget.innerHTML = '<i class="bi bi-check"></i> Copiado!';
+          setTimeout(() => {
+            e.currentTarget.innerHTML = originalText;
+          }, 1500);
+        });
+      });
+    });
+
+    // Descargar imagen
+    document.querySelectorAll(".download-img").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const imgData = e.currentTarget.dataset.img;
+        const fileName = e.currentTarget.dataset.name;
+        downloadImage(imgData, fileName);
+      });
+    });
+
+    // Eliminar campaña
+    document.querySelectorAll(".delete-campaign").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const id = parseInt(e.currentTarget.dataset.id);
+        if (confirm("¿Estás seguro de eliminar esta campaña?")) {
+          deleteCampaign(id);
+        }
+      });
+    });
+  }
+
+  function downloadImage(dataUrl, fileName) {
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = `${fileName}.png`;
+    link.click();
+  }
+
+  function deleteCampaign(id) {
+    let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    campaigns = campaigns.filter((c) => c.id !== id);
+    localStorage.setItem("campaigns", JSON.stringify(campaigns));
+    renderCampaigns();
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString + "T00:00:00");
+    return date.toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+</script>

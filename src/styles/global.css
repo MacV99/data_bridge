@@ -2,13 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-  --clr-main: #f96754;
+  --clr-main: #d5783b;
 
   --clr-dark: #0e0e0e;
   --clr-dark2: #1d1d1d;
 
   --clr-gray: #646464;
-  --clr-text: #9d9d9d;
+  --clr-text: #646464;
   --clr-border: #202020;
 
   --clr-white: #ebeded;
@@ -142,7 +142,8 @@ button,
   backdrop-filter: blur(10px);
 }
 
-input {
+input,
+textarea {
   outline: none;
   border: solid 1px var(--clr-border);
   background-color: transparent;
@@ -152,8 +153,13 @@ input {
   color: var(--clr-white);
 }
 
-input:focus {
+input:focus,
+textarea:focus {
   background-color: var(--clr-border);
+}
+
+textarea {
+  resize: none;
 }
 
 label {

@@ -2,189 +2,352 @@
   <div id="modal-add-city" class="flex-column">
     <i class="bi bi-x-lg close"></i>
 
-    <input class="city-name" type="text" placeholder="NOMBRE DE LA CIUDAD" />
-    <input class="date" type="date" />
+    <h3>Nueva Campaña</h3>
+
+    <input
+      id="city-name"
+      type="text"
+      placeholder="NOMBRE DE LA CIUDAD"
+      required
+    />
+    <input id="start-date" type="date" required />
+
     <hr />
 
-    <p>BLOQUE 1</p>
-    <div class="bloque flex-row">
-      <label class="flex-row">
-        <i class="bi bi-upload"></i>
-        <img class="preview-img" src="" alt="" style="display: none;" />
-        <input class="img" type="file" accept="image/*" />
-        <i class="bi bi-copy"></i>
-      </label>
-      <label>
-        <textarea class="text" placeholder="text1"></textarea>
-        <i class="bi bi-copy"></i>
-      </label>
+    <div id="duplas-container" class="flex-column">
+      <!-- Las duplas se generarán dinámicamente aquí -->
     </div>
 
-    <br />
+    <button class="boton add-dupla">Añadir Dupla</button>
+
+    <hr />
 
     <div class="buttons flex-row">
-      <button class="boton1">guardar</button>
-      <button class="boton2 cancel">cancelar</button>
+      <button class="boton save-campaign">Guardar</button>
+      <button class="boton2 cancel">Cancelar</button>
     </div>
   </div>
 </div>
 
+<!-- ESTILOS ESTÁTICOS - Elementos que existen en el HTML -->
 <style>
   #modal-add-city {
     background-color: var(--clr-dark);
     padding: 20px;
     border: solid 1px var(--clr-border);
-    width: 500px;
+    width: 600px;
+    max-width: 90%;
     position: relative;
-    gap: 5px;
+    gap: 10px;
     align-items: flex-start;
-    max-height: 80%;
+    max-height: 85%;
     overflow-y: auto;
   }
 
+  #modal-add-city h3 {
+    width: 100%;
+    text-align: center;
+    color: var(--clr-main);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
   #modal-add-city .close {
-    position: absolute;
+    position: fixed;
     top: 20px;
     right: 20px;
     font-size: 20px;
     cursor: pointer;
     border: solid 1px var(--clr-border);
     padding: 7px;
+    transition: var(--transition);
+    background-color: var(--clr-dark);
+    z-index: 100;
+  }
+
+  #modal-add-city .close:hover {
+    background-color: var(--clr-border);
+  }
+
+  #modal-add-city input {
+    width: 100%;
+  }
+
+  #duplas-container {
+    width: 100%;
+    gap: 15px;
   }
 
   .buttons {
     gap: 5px;
+    width: 100%;
   }
 
-  label {
+  .add-dupla {
+    gap: 8px;
+    width: fit-content;
+    align-self: center;
+  }
+</style>
+
+<!-- ESTILOS DINÁMICOS - Elementos creados por JavaScript -->
+<style is:inline>
+  /* Bloque de dupla completo */
+  .dupla-block {
     width: 100%;
-    color: var(--clr-text);
-    border: solid 1px var(--clr-border);
-    height: 190px;
+    background-color: var(--clr-dark2);
+    padding: 15px;
+    gap: 10px;
     position: relative;
   }
 
-  .bi-copy {
+  .dupla-block > h6 {
+    width: fit-content;
+    color: var(--clr-main);
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 5px;
+    align-self: flex-start;
+  }
+
+  /* Botón eliminar dupla */
+  .dupla-block .remove-dupla {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    z-index: 10;
-    padding: 10px;
-  }
-
-  label input,
-  label textarea {
+    top: 10px;
+    right: 10px;
+    background: transparent;
     border: none;
-    width: 100%;
-    height: 100%;
-    background-color: transparent;
-    color: var(--clr-text);
-    font-size: 1rem;
-    padding: 5px 7px;
+    color: var(--clr-gray);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+    width: auto;
+    transition: var(--transition);
   }
 
-  textarea {
-    resize: none;
-  }
-
-  /* Scrollbar delgada para textarea */
-  textarea::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  textarea::-webkit-scrollbar-track {
+  .dupla-block .remove-dupla:hover {
+    color: var(--clr-main);
     background: transparent;
   }
 
-  textarea::-webkit-scrollbar-thumb {
-    background-color: var(--clr-text);
-    border-radius: 10px;
-  }
-
-  textarea::-webkit-scrollbar-thumb:hover {
-    background-color: var(--clr-gray);
-  }
-
-  label textarea:focus {
-    outline: none;
-    background-color: var(--clr-border);
-  }
-
-  input[type="file"] {
-    display: none;
-  }
-
-  label .bi-upload {
-    font-size: 3rem;
-    cursor: pointer;
-  }
-
-  .preview-img {
+  /* Contenedor horizontal (imagen | texto) */
+  .dupla-content {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
   }
 
-  .bloque {
+  /* Cada mitad del bloque */
+  .bloque-item {
+    flex: 1;
+    background-color: var(--clr-dark);
+    border: solid 1px var(--clr-gray);
+    padding: 10px;
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .bloque-item h6 {
+    width: 100%;
+    text-align: left;
+    color: var(--clr-text);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+
+  .bloque-item label {
     width: 100%;
     gap: 5px;
+    display: flex;
+    flex-direction: column;
   }
 
-  @media (hover: hover) {
-    .bi-copy:hover {
-      background-color: var(--clr-border);
+  .bloque-item input[type="file"] {
+    width: 100%;
+    font-size: 0.85rem;
+    padding: 5px;
+  }
+
+  .bloque-item textarea {
+    width: 100%;
+    min-height: 120px;
+    max-height: 120px;
+    resize: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .dupla-content {
+      flex-direction: column;
     }
   }
 </style>
 
 <script>
   //@ts-nocheck
-  const $close_modal = document.querySelector("#modal-add-city .close");
-  const $boton_cancelar = document.querySelector("#modal-add-city .cancel");
-  const $modal_add_city = document.querySelector(".modal-overlay");
-  const $inputFile = document.querySelector(".img");
-  const $previewImg = document.querySelector(".preview-img");
-  const $uploadIcon = document.querySelector(".bi-upload");
 
-  // Cerrar con botones
-  $close_modal.addEventListener("click", closeModal);
-  $boton_cancelar.addEventListener("click", closeModal);
+  // Referencias DOM
+  const $closeModal = document.querySelector("#modal-add-city .close");
+  const $modalOverlay = document.querySelector(".modal-overlay");
+  const $cancelButton = document.querySelector("#modal-add-city .cancel");
+  const $saveButton = document.querySelector(".save-campaign");
+  const $addDuplaButton = document.querySelector(".add-dupla");
+  const $duplasContainer = document.getElementById("duplas-container");
+  const $cityNameInput = document.getElementById("city-name");
+  const $startDateInput = document.getElementById("start-date");
 
-  // Cerrar al clickear fuera del modal
-  $modal_add_city.addEventListener("click", (e) => {
-    if (e.target === $modal_add_city) {
-      closeModal();
-    }
+  let duplaCounter = 0;
+
+  // Inicializar con una dupla por defecto
+  document.addEventListener("DOMContentLoaded", () => {
+    addDupla();
   });
 
-  // Cerrar con tecla ESC
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeModal();
-    }
-  });
+  // Event Listeners
+  $closeModal?.addEventListener("click", closeModal);
+  $cancelButton?.addEventListener("click", closeModal);
+  $addDuplaButton?.addEventListener("click", addDupla);
+  $saveButton?.addEventListener("click", saveCampaign);
 
-  // Preview de imagen
-  $inputFile.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        $previewImg.src = e.target.result;
-        $previewImg.style.display = "block";
-        $uploadIcon.style.display = "none";
-      };
-
-      reader.readAsDataURL(file);
-    }
-  });
-
+  // Funciones
   function closeModal() {
-    $modal_add_city.style.display = "none";
+    $modalOverlay.style.display = "none";
+    resetForm();
+  }
+
+  function addDupla() {
+    duplaCounter++;
+    const duplaBlock = document.createElement("div");
+    duplaBlock.className = "dupla-block flex-column";
+    duplaBlock.dataset.duplaId = duplaCounter;
+
+    duplaBlock.innerHTML = `
+      <h6>DUPLA ${duplaCounter}</h6>
+      ${duplaCounter > 1 ? '<i class="bi bi-trash remove-dupla"></i>' : ""}
+      
+      <div class="dupla-content">
+        <div class="bloque-item">
+          <h6>IMAGEN ${duplaCounter}</h6>
+          <label>
+            <input type="file" class="dupla-img" accept="image/*" required />
+          </label>
+        </div>
+        
+        <div class="bloque-item">
+          <h6>TEXTO ${duplaCounter}</h6>
+          <label>
+            <textarea class="dupla-text" placeholder="Escribe el texto aquí..." required></textarea>
+          </label>
+        </div>
+      </div>
+    `;
+
+    // Event listener para eliminar dupla
+    const removeBtn = duplaBlock.querySelector(".remove-dupla");
+    if (removeBtn) {
+      removeBtn.addEventListener("click", () => {
+        duplaBlock.remove();
+        updateDuplaNumbers();
+      });
+    }
+
+    $duplasContainer.appendChild(duplaBlock);
+  }
+
+  function updateDuplaNumbers() {
+    const duplas = $duplasContainer.querySelectorAll(".dupla-block");
+    duplas.forEach((dupla, index) => {
+      const number = index + 1;
+      dupla.querySelector("h6").textContent = `DUPLA ${number}`;
+      dupla.querySelector(".bloque-item:nth-of-type(1) h6").textContent =
+        `IMAGEN ${number}`;
+      dupla.querySelector(".bloque-item:nth-of-type(2) h6").textContent =
+        `TEXTO ${number}`;
+    });
+  }
+
+  async function saveCampaign() {
+    const cityName = $cityNameInput.value.trim();
+    const startDate = $startDateInput.value;
+
+    // Validaciones
+    if (!cityName) {
+      alert("Por favor ingresa el nombre de la ciudad");
+      return;
+    }
+
+    if (!startDate) {
+      alert("Por favor selecciona la fecha de inicio");
+      return;
+    }
+
+    const duplas = [];
+    const duplaBlocks = $duplasContainer.querySelectorAll(".dupla-block");
+
+    for (const block of duplaBlocks) {
+      const imgInput = block.querySelector(".dupla-img");
+      const textInput = block.querySelector(".dupla-text");
+
+      if (!imgInput.files[0]) {
+        alert("Por favor selecciona todas las imágenes");
+        return;
+      }
+
+      if (!textInput.value.trim()) {
+        alert("Por favor completa todos los textos");
+        return;
+      }
+
+      // Convertir imagen a base64
+      const imgBase64 = await fileToBase64(imgInput.files[0]);
+
+      duplas.push({
+        image: imgBase64,
+        text: textInput.value.trim(),
+      });
+    }
+
+    // Crear objeto de campaña
+    const campaign = {
+      id: Date.now(),
+      cityName,
+      startDate,
+      duplas,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Guardar en localStorage
+    const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    campaigns.push(campaign);
+    localStorage.setItem("campaigns", JSON.stringify(campaigns));
+
+    // Disparar evento personalizado para actualizar el dashboard
+    window.dispatchEvent(
+      new CustomEvent("campaignAdded", { detail: campaign }),
+    );
+
+    closeModal();
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function resetForm() {
+    $cityNameInput.value = "";
+    $startDateInput.value = "";
+    $duplasContainer.innerHTML = "";
+    duplaCounter = 0;
+    addDupla();
   }
 </script>
