@@ -12,7 +12,6 @@ import AddCity from "../components/create_city.astro";
   </section>
 </Layout1>
 
-<!-- ESTILOS ESTÁTICOS - Section del dashboard -->
 <style>
   #dashboard {
     padding: 30px;
@@ -21,7 +20,6 @@ import AddCity from "../components/create_city.astro";
     align-items: flex-start;
   }
 
-  /* Estado vacío */
   .empty-state {
     width: 100%;
     padding: 60px 20px;
@@ -38,19 +36,19 @@ import AddCity from "../components/create_city.astro";
   }
 </style>
 
-<!-- ESTILOS DINÁMICOS - Cards de campañas creadas por JS -->
 <style is:inline>
-  /* Card de campaña */
   .campaign-card {
     background-color: var(--clr-dark2);
-    padding: 20px;
-    width: 550px;
+    padding: 15px 15px;
+    width: 450px;
     max-width: 100%;
-    gap: 15px;
+    gap: 5px;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+    border: solid 1px var(--clr-border);
+    text-align: left;
   }
 
   .campaign-card .delete-campaign {
@@ -61,24 +59,25 @@ import AddCity from "../components/create_city.astro";
     border: none;
     color: var(--clr-gray);
     cursor: pointer;
-    font-size: 1.3rem;
+    font-size: 20px;
     padding: 5px;
     transition: var(--transition);
+    border: solid 1px var(--clr-border);
+    background-color: var(--clr-dark);
+    padding: 7px;
   }
 
   .campaign-card .delete-campaign:hover {
     color: var(--clr-main);
   }
 
-  /* Header de la card */
   .campaign-header {
     width: 100%;
     gap: 5px;
     padding-bottom: 15px;
-    border-bottom: solid 1px var(--clr-border);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .campaign-header h5 {
@@ -89,9 +88,10 @@ import AddCity from "../components/create_city.astro";
   .campaign-header p {
     font-size: 0.85rem;
     color: var(--clr-gray);
+    display: flex;
+    gap: 7px;
   }
 
-  /* Bloque de dupla en el dashboard */
   .bloque {
     padding: 12px;
     width: 100%;
@@ -108,9 +108,9 @@ import AddCity from "../components/create_city.astro";
     font-size: 0.8rem;
     text-align: center;
     margin-bottom: 5px;
+    text-align: left;
   }
 
-  /* Contenedor horizontal para imagen y texto */
   .bloque-content {
     width: 100%;
     display: flex;
@@ -118,29 +118,20 @@ import AddCity from "../components/create_city.astro";
     gap: 10px;
   }
 
-  /* Items individuales (imagen y texto) */
   .bloque-item {
     flex: 1;
-    border: solid 1px var(--clr-gray);
-    padding: 10px;
+    border: none;
+    background-color: var(--clr-dark);
+    padding: 0px;
     gap: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
-  .bloque-item h6 {
-    width: 100%;
-    color: var(--clr-text);
-    font-size: 0.7rem;
-    font-weight: 500;
-    margin-bottom: 5px;
-    text-align: left;
-  }
-
   .bloque-item img {
     width: 100%;
-    max-height: 150px;
+    max-height: 180px;
     object-fit: cover;
     border: solid 1px var(--clr-border);
   }
@@ -174,7 +165,6 @@ import AddCity from "../components/create_city.astro";
     justify-content: center;
   }
 
-  /* Responsive */
   @media (max-width: 600px) {
     .bloque-content {
       flex-direction: column;
@@ -191,12 +181,10 @@ import AddCity from "../components/create_city.astro";
 
   const $dashboard = document.getElementById("dashboard");
 
-  // Cargar campañas al iniciar
   document.addEventListener("DOMContentLoaded", () => {
     renderCampaigns();
   });
 
-  // Escuchar cuando se añade una nueva campaña
   window.addEventListener("campaignAdded", () => {
     renderCampaigns();
   });
@@ -230,24 +218,20 @@ import AddCity from "../components/create_city.astro";
           .map(
             (dupla, index) => `
           <div class="bloque">
-            <h6>DUPLA ${index + 1}</h6>
+            <h6>DUPLA #${index + 1}: ${dupla.name}</h6>
             
             <div class="bloque-content">
               <div class="bloque-item">
-                <h6>IMAGEN ${index + 1}</h6>
-                <img src="${dupla.image}" alt="Imagen ${index + 1}" />
-                <button class="boton download-img" data-img="${dupla.image}" data-name="${campaign.cityName}_img${index + 1}">
+                <img src="${dupla.image}" alt="Imagen ${dupla.name}" />
+                <button class="boton download-img" data-img="${dupla.image}" data-name="${campaign.cityName}_${dupla.name}_img">
                   <i class="bi bi-download"></i>
-                
                 </button>
               </div>
 
               <div class="bloque-item">
-                <h6>TEXTO ${index + 1}</h6>
                 <p>${escapeHtml(dupla.text)}</p>
                 <button class="boton copy-text" data-text="${escapeHtml(dupla.text)}">
                   <i class="bi bi-clipboard"></i>
-                  
                 </button>
               </div>
             </div>
@@ -260,12 +244,10 @@ import AddCity from "../components/create_city.astro";
       )
       .join("");
 
-    // Añadir event listeners
     addEventListeners();
   }
 
   function addEventListeners() {
-    // Copiar texto
     document.querySelectorAll(".copy-text").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const text = e.currentTarget.dataset.text;
@@ -279,7 +261,6 @@ import AddCity from "../components/create_city.astro";
       });
     });
 
-    // Descargar imagen
     document.querySelectorAll(".download-img").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const imgData = e.currentTarget.dataset.img;
@@ -288,7 +269,6 @@ import AddCity from "../components/create_city.astro";
       });
     });
 
-    // Eliminar campaña
     document.querySelectorAll(".delete-campaign").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const id = parseInt(e.currentTarget.dataset.id);

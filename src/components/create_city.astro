@@ -15,10 +15,8 @@
     <hr />
 
     <div id="duplas-container" class="flex-column">
-      <!-- Las duplas se generarán dinámicamente aquí -->
+      <!-- Las 2 duplas fijas se generarán aquí -->
     </div>
-
-    <button class="boton add-dupla">Añadir Dupla</button>
 
     <hr />
 
@@ -29,7 +27,7 @@
   </div>
 </div>
 
-<!-- ESTILOS ESTÁTICOS - Elementos que existen en el HTML -->
+<!-- ESTILOS ESTÁTICOS -->
 <style>
   #modal-add-city {
     background-color: var(--clr-dark);
@@ -40,8 +38,10 @@
     position: relative;
     gap: 10px;
     align-items: flex-start;
-    max-height: 85%;
+    justify-content: flex-start;
+    max-height: 88vh;
     overflow-y: auto;
+    scroll-behavior: smooth;
   }
 
   #modal-add-city h3 {
@@ -59,9 +59,8 @@
     font-size: 20px;
     cursor: pointer;
     border: solid 1px var(--clr-border);
-    padding: 7px;
-    transition: var(--transition);
     background-color: var(--clr-dark);
+    padding: 7px;
     z-index: 100;
   }
 
@@ -71,6 +70,7 @@
 
   #modal-add-city input {
     width: 100%;
+    text-transform: uppercase;
   }
 
   #duplas-container {
@@ -82,17 +82,10 @@
     gap: 5px;
     width: 100%;
   }
-
-  .add-dupla {
-    gap: 8px;
-    width: fit-content;
-    align-self: center;
-  }
 </style>
 
-<!-- ESTILOS DINÁMICOS - Elementos creados por JavaScript -->
+<!-- ESTILOS DINÁMICOS -->
 <style is:inline>
-  /* Bloque de dupla completo */
   .dupla-block {
     width: 100%;
     background-color: var(--clr-dark2);
@@ -106,44 +99,21 @@
     color: var(--clr-main);
     font-size: 0.85rem;
     text-align: center;
-    margin-bottom: 5px;
     align-self: flex-start;
+    font-weight: 600;
   }
 
-  /* Botón eliminar dupla */
-  .dupla-block .remove-dupla {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    color: var(--clr-gray);
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 0;
-    width: auto;
-    transition: var(--transition);
-  }
-
-  .dupla-block .remove-dupla:hover {
-    color: var(--clr-main);
-    background: transparent;
-  }
-
-  /* Contenedor horizontal (imagen | texto) */
   .dupla-content {
     width: 100%;
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 5px;
   }
 
-  /* Cada mitad del bloque */
-  .bloque-item {
+  .dupla-content .bloque-item {
     flex: 1;
     background-color: var(--clr-dark);
-    border: solid 1px var(--clr-gray);
-    padding: 10px;
+    padding: 0px;
     gap: 8px;
     display: flex;
     flex-direction: column;
@@ -151,26 +121,24 @@
     justify-content: flex-start;
   }
 
-  .bloque-item h6 {
-    width: 100%;
-    text-align: left;
-    color: var(--clr-text);
-    font-size: 0.75rem;
-    font-weight: 500;
-    margin-bottom: 5px;
-  }
-
   .bloque-item label {
     width: 100%;
+    height: 100%;
     gap: 5px;
     display: flex;
     flex-direction: column;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .bloque-item input[type="file"] {
-    width: 100%;
-    font-size: 0.85rem;
-    padding: 5px;
+    display: none;
+  }
+
+  .bloque-item label .bi-upload {
+    font-size: 2rem;
+    color: var(--clr-text);
   }
 
   .bloque-item textarea {
@@ -180,7 +148,6 @@
     resize: none;
   }
 
-  /* Responsive */
   @media (max-width: 600px) {
     .dupla-content {
       flex-direction: column;
@@ -196,22 +163,16 @@
   const $modalOverlay = document.querySelector(".modal-overlay");
   const $cancelButton = document.querySelector("#modal-add-city .cancel");
   const $saveButton = document.querySelector(".save-campaign");
-  const $addDuplaButton = document.querySelector(".add-dupla");
   const $duplasContainer = document.getElementById("duplas-container");
   const $cityNameInput = document.getElementById("city-name");
   const $startDateInput = document.getElementById("start-date");
 
-  let duplaCounter = 0;
-
-  // Inicializar con una dupla por defecto
-  document.addEventListener("DOMContentLoaded", () => {
-    addDupla();
-  });
+  // Nombres fijos de las duplas
+  const DUPLA_NAMES = ["INFO", "LUGAR"];
 
   // Event Listeners
   $closeModal?.addEventListener("click", closeModal);
   $cancelButton?.addEventListener("click", closeModal);
-  $addDuplaButton?.addEventListener("click", addDupla);
   $saveButton?.addEventListener("click", saveCampaign);
 
   // Funciones
@@ -220,54 +181,35 @@
     resetForm();
   }
 
-  function addDupla() {
-    duplaCounter++;
-    const duplaBlock = document.createElement("div");
-    duplaBlock.className = "dupla-block flex-column";
-    duplaBlock.dataset.duplaId = duplaCounter;
+  function createDuplas() {
+    $duplasContainer.innerHTML = "";
 
-    duplaBlock.innerHTML = `
-      <h6>DUPLA ${duplaCounter}</h6>
-      ${duplaCounter > 1 ? '<i class="bi bi-trash remove-dupla"></i>' : ""}
-      
-      <div class="dupla-content">
-        <div class="bloque-item">
-          <h6>IMAGEN ${duplaCounter}</h6>
-          <label>
-            <input type="file" class="dupla-img" accept="image/*" required />
-          </label>
-        </div>
+    DUPLA_NAMES.forEach((name, index) => {
+      const duplaNumber = index + 1;
+      const duplaBlock = document.createElement("div");
+      duplaBlock.className = "dupla-block flex-column";
+      duplaBlock.dataset.duplaName = name;
+
+      duplaBlock.innerHTML = `
+        <h6>DUPLA #${duplaNumber}: ${name}</h6>
         
-        <div class="bloque-item">
-          <h6>TEXTO ${duplaCounter}</h6>
-          <label>
-            <textarea class="dupla-text" placeholder="Escribe el texto aquí..." required></textarea>
-          </label>
+        <div class="dupla-content">
+          <div class="bloque-item">
+            <label class="pointer">
+              <i class="bi bi-upload"></i>
+              <input type="file" class="dupla-img" accept="image/*" required />
+            </label>
+          </div>
+          
+          <div class="bloque-item">
+            <label>
+              <textarea class="dupla-text" placeholder="Escribe el texto aquí..." required></textarea>
+            </label>
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-    // Event listener para eliminar dupla
-    const removeBtn = duplaBlock.querySelector(".remove-dupla");
-    if (removeBtn) {
-      removeBtn.addEventListener("click", () => {
-        duplaBlock.remove();
-        updateDuplaNumbers();
-      });
-    }
-
-    $duplasContainer.appendChild(duplaBlock);
-  }
-
-  function updateDuplaNumbers() {
-    const duplas = $duplasContainer.querySelectorAll(".dupla-block");
-    duplas.forEach((dupla, index) => {
-      const number = index + 1;
-      dupla.querySelector("h6").textContent = `DUPLA ${number}`;
-      dupla.querySelector(".bloque-item:nth-of-type(1) h6").textContent =
-        `IMAGEN ${number}`;
-      dupla.querySelector(".bloque-item:nth-of-type(2) h6").textContent =
-        `TEXTO ${number}`;
+      $duplasContainer.appendChild(duplaBlock);
     });
   }
 
@@ -275,7 +217,6 @@
     const cityName = $cityNameInput.value.trim();
     const startDate = $startDateInput.value;
 
-    // Validaciones
     if (!cityName) {
       alert("Por favor ingresa el nombre de la ciudad");
       return;
@@ -292,6 +233,7 @@
     for (const block of duplaBlocks) {
       const imgInput = block.querySelector(".dupla-img");
       const textInput = block.querySelector(".dupla-text");
+      const duplaName = block.dataset.duplaName;
 
       if (!imgInput.files[0]) {
         alert("Por favor selecciona todas las imágenes");
@@ -303,16 +245,15 @@
         return;
       }
 
-      // Convertir imagen a base64
       const imgBase64 = await fileToBase64(imgInput.files[0]);
 
       duplas.push({
+        name: duplaName,
         image: imgBase64,
         text: textInput.value.trim(),
       });
     }
 
-    // Crear objeto de campaña
     const campaign = {
       id: Date.now(),
       cityName,
@@ -321,12 +262,10 @@
       createdAt: new Date().toISOString(),
     };
 
-    // Guardar en localStorage
     const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
     campaigns.push(campaign);
     localStorage.setItem("campaigns", JSON.stringify(campaigns));
 
-    // Disparar evento personalizado para actualizar el dashboard
     window.dispatchEvent(
       new CustomEvent("campaignAdded", { detail: campaign }),
     );
@@ -346,8 +285,12 @@
   function resetForm() {
     $cityNameInput.value = "";
     $startDateInput.value = "";
-    $duplasContainer.innerHTML = "";
-    duplaCounter = 0;
-    addDupla();
+    createDuplas();
   }
+
+  window.addEventListener("initializeDuplas", () => {
+    if ($duplasContainer.children.length === 0) {
+      createDuplas();
+    }
+  });
 </script>
