@@ -1,0 +1,84 @@
+<div class="modal-overlay">
+  <div id="modal-add-city" class="flex-column">
+    <i class="bi bi-x-lg close"></i>
+
+    <input class="city-name" type="text" placeholder="NOMBRE DE LA CIUDAD" />
+    <input class="date" type="date" />
+    <hr />
+    <label>
+      img1
+      <input class="img" type="file" />
+    </label>
+    <label>
+      text1
+      <input class="text" type="text" />
+    </label>
+
+    <br />
+
+    <div class="buttons flex-row">
+      <button class="boton1">guardar</button>
+      <button class="boton2 cancel">cancelar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #modal-add-city {
+    background-color: var(--clr-dark);
+    padding: 20px;
+    border: solid 1px var(--clr-border);
+    width: 500px;
+    position: relative;
+    gap: 5px;
+    align-items: flex-start;
+    max-height: 80%;
+    overflow-y: auto;
+  }
+
+  #modal-add-city .close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 20px;
+    cursor: pointer;
+    border: solid 1px var(--clr-border);
+    padding: 7px;
+  }
+
+  .buttons {
+    gap: 5px;
+  }
+
+  label {
+    width: 100%;
+    color: var(--clr-text);
+  }
+
+  label input {
+    width: 100%;
+  }
+</style>
+
+<script>
+  //@ts-nocheck
+  const $close_modal = document.querySelector("#modal-add-city .close");
+  const $modal_add_city = document.querySelector(".modal-overlay");
+  const $boton_cancelar = document.querySelector("#modal-add-city .cancel");
+
+  $close_modal.addEventListener("click", () => {
+    closeModal();
+  });
+
+  $boton_cancelar.addEventListener("click", () => {
+    closeModal();
+  });
+
+  function closeModal() {
+    $modal_add_city.style.display = "none";
+  }
+
+  function hola() {
+    console.log("hola");
+  }
+</script>

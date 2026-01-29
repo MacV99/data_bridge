@@ -2,14 +2,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-  --clr-main: #3e484d;
+  --clr-main: #d5783b;
 
-  --clr-dark: #121617;
-  --clr-dark2: #181d1f;
+  --clr-dark: #0e0e0e;
+  --clr-dark2: #1d1d1d;
 
   --clr-gray: #646464;
   --clr-text: #646464;
-  --clr-border: #d8dbdc;
+  --clr-border: #202020;
 
   --clr-white: #ebeded;
 
@@ -24,12 +24,12 @@
   padding: 0;
   box-sizing: border-box;
   line-height: normal;
+  font-family: var(--font-montserrat)
 }
 
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
-  font-family: var(--font-montserrat)
 }
 
 body {
@@ -38,8 +38,8 @@ body {
   display: flex;
   align-items: center;
   flex-direction: column;
-  background-color: var(--clr-white);
-  color: var(--clr-dark);
+  background-color: var(--clr-dark);
+  color: var(--clr-white);
 }
 
 main {
@@ -101,10 +101,7 @@ footer {
   align-items: center;
 }
 
-section>*,
-footer>* {
-  max-width: 1000px;
-}
+
 
 button,
 .boton,
@@ -112,26 +109,70 @@ button,
   padding: 11px 14px 10px 14px;
   border-radius: 50px;
   font-size: .9rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 2px;
   padding-left: 16px;
   text-transform: uppercase;
-  border: solid 2px #fff;
-  background-color: #fff;
-  color: var(--clr-dark);
+  border: solid 1px var(--clr-border);
+  background-color: transparent;
+  color: var(--clr-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .boton2 {
+  border-color: transparent;
+  text-decoration: underline;
+  color: var(--clr-text);
+
+}
+
+.modal-overlay {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  background-color: #000000c5;
+  backdrop-filter: blur(10px);
+}
+
+input {
+  outline: none;
+  border: solid 1px var(--clr-border);
   background-color: transparent;
-  border-color: #fff;
-  color: #fff;
+  padding: 7px 10px;
+  font-size: 1rem;
+  font-family: var(--font-montserrat);
+  color: var(--clr-white);
+}
+
+input:focus {
+  background-color: var(--clr-border);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+}
+
+hr {
+  width: 100%;
+  border: solid 1px var(--clr-border);
+  margin: 5px 0;
 }
 
 @media (hover: hover) {
 
   button:hover,
   .boton:hover {
-    background-color: var(--clr-white);
+    background-color: var(--clr-border);
+    cursor: pointer;
   }
 
   .boton2:hover {

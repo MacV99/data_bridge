@@ -1,0 +1,38 @@
+<header class="flex-row">
+  <h1>Data Bridge</h1>
+  <i class="bi bi-plus-circle"></i>
+</header>
+
+<style>
+  header {
+    width: 100%;
+    padding: 20px 0;
+    border-bottom: solid 1px var(--clr-border);
+    color: var(--clr-white);
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    gap: 10px;
+  }
+
+  button {
+  }
+
+  header .bi {
+    font-size: 2.1rem;
+    color: var(--clr-white);
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  //@ts-nocheck
+
+  const $openAddCityModal = document.querySelector("header .bi");
+  const $modalOverlay = document.querySelector(".modal-overlay");
+
+  $openAddCityModal?.addEventListener("click", () => {
+    $modalOverlay.style.display = "flex";
+  });
+</script>

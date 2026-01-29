@@ -1,14 +1,105 @@
 ---
 import Layout1 from "../layouts/Layout1.astro";
+import Header from "../sections/header.astro";
+import AddCity from "../components/add_city.astro";
 ---
 
-<Layout1 title="Dashboard" />
-<h1></h1>
+<Layout1 title="Dashboard">
+	<Header />
+	<AddCity />
+	<section id="dashboard" class="flex-row">
+		<!-- <div class="automatizacion flex-column">
+      <h5>NOMBRE CIUDAD 1</h5>
+      <ul class="bloque flex-column">
+        <li class="img1 flex-column">
+          <h6>IMAGEN 1</h6>
+          <img src="" alt="" />
+        </li>
+        <li class="text1 flex-column">
+          <h6>TEXTO 1</h6>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Deserunt
+            laudantium harum sint cupiditate asperiores voluptatem! Ratione
+            ducimus itaque dolorum quia, nulla officia. Aliquam explicabo eos
+            aperiam officiis alias, minima tempora.
+          </p>
+        </li>
+      </ul>
+      <ul class="bloque flex-column">
+        <li class="img2 flex-column">
+          <h6>IMAGEN 2</h6>
+          <img src="" alt="" />
+        </li>
+        <li class="text2 flex-column">
+          <h6>TEXTO 2</h6>
+          <p>
+            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto
+            vitae in odio deserunt veniam atque cupiditate quod, doloremque esse
+            alias animi quia omnis laboriosam, tenetur adipisci, quis
+            perferendis numquam a?
+          </p>
+        </li>
+      </ul>
+    </div>
+
+    <div class="automatizacion flex-column">
+      <h5>NOMBRE CIUDAD 2</h5>
+      <ul class="bloque flex-column">
+        <li class="img2 flex-column">
+          <h6>IMAGEN 1</h6>
+          <img src="" alt="" />
+        </li>
+        <li class="text1 flex-column">
+          <h6>TEXTO 1</h6>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Deserunt
+            laudantium harum sint cupiditate asperiores voluptatem! Ratione
+            ducimus itaque dolorum quia, nulla officia. Aliquam explicabo eos
+            aperiam officiis alias, minima tempora.
+          </p>
+        </li>
+      </ul>
+      <ul class="bloque flex-column">
+        <li class="img2 flex-column">
+          <h6>IMAGEN 2</h6>
+          <img src="" alt="" />
+        </li>
+        <li class="text2 flex-column">
+          <h6>TEXTO 2</h6>
+          <p>
+            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto
+            vitae in odio deserunt veniam atque cupiditate quod, doloremque esse
+            alias animi quia omnis laboriosam, tenetur adipisci, quis
+            perferendis numquam a?
+          </p>
+        </li>
+      </ul>
+    </div> -->
+	</section>
+</Layout1>
 
 <style>
-	@media (min-width: 750px) {
+	#dashboard {
+		padding: 30px;
 	}
 
-	@media (hover: hover) {
+	.automatizacion {
+		background-color: var(--clr-dark2);
+		padding: 15px 20px;
+		width: 500px;
+		gap: 5px;
+	}
+
+	.bloque {
+		padding: 10px;
+		width: 100%;
+		gap: 5px;
+		background-color: var(--clr-dark);
+	}
+
+	li {
+		border: solid 1px var(--clr-gray);
+		width: 100%;
+		padding: 5px;
 	}
 </style>
