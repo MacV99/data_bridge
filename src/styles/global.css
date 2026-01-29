@@ -2,13 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-  --clr-main: #d5783b;
+  --clr-main: #f96754;
 
   --clr-dark: #0e0e0e;
   --clr-dark2: #1d1d1d;
 
   --clr-gray: #646464;
-  --clr-text: #646464;
+  --clr-text: #9d9d9d;
   --clr-border: #202020;
 
   --clr-white: #ebeded;
@@ -129,7 +129,7 @@ button,
 }
 
 .modal-overlay {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   position: fixed;

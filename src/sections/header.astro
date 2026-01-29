@@ -1,6 +1,6 @@
 <header class="flex-row">
   <h1>Data Bridge</h1>
-  <i class="bi bi-plus-circle"></i>
+  <i class="bi bi-clipboard2-plus-fill open-modal"></i>
 </header>
 
 <style>
@@ -16,20 +16,18 @@
     gap: 10px;
   }
 
-  button {
-  }
-
   header .bi {
-    font-size: 2.1rem;
-    color: var(--clr-white);
+    font-size: 2.3rem;
+    color: var(--clr-main);
     cursor: pointer;
+    margin-left: 20px;
   }
 </style>
 
 <script>
   //@ts-nocheck
 
-  const $openAddCityModal = document.querySelector("header .bi");
+  const $openAddCityModal = document.querySelector(".open-modal");
   const $modalOverlay = document.querySelector(".modal-overlay");
 
   $openAddCityModal?.addEventListener("click", () => {
