@@ -12,6 +12,7 @@ import AddCity from "../components/create_city.astro";
   </section>
 </Layout1>
 
+<!-- Estilos del dashboard -->
 <style>
   #dashboard {
     padding: 30px;
@@ -36,6 +37,7 @@ import AddCity from "../components/create_city.astro";
   }
 </style>
 
+<!-- Estilos dinámicos de campañas y bloques -->
 <style is:inline>
   .campaign-card {
     background-color: var(--clr-dark2);
@@ -56,25 +58,17 @@ import AddCity from "../components/create_city.astro";
     position: absolute;
     top: 15px;
     right: 15px;
-    background: transparent;
-    border: none;
+    background-color: var(--clr-dark);
+    border: solid 1px var(--clr-border);
     color: var(--clr-gray);
     cursor: pointer;
     font-size: 20px;
-    padding: 5px;
-    transition: var(--transition);
-    border: solid 1px var(--clr-border);
-    background-color: var(--clr-dark);
     padding: 7px;
+    transition: var(--transition);
   }
 
   .campaign-card .edit-campaign {
     right: 53px;
-  }
-
-  .campaign-card .delete-campaign:hover,
-  .campaign-card .edit-campaign:hover {
-    color: var(--clr-main);
   }
 
   .campaign-header {
@@ -112,9 +106,9 @@ import AddCity from "../components/create_city.astro";
     width: 100%;
     color: var(--clr-main);
     font-size: 0.8rem;
-    text-align: center;
-    margin-bottom: 5px;
     text-align: left;
+    margin-bottom: 5px;
+    font-weight: 600;
   }
 
   .bloque-content {
@@ -126,7 +120,6 @@ import AddCity from "../components/create_city.astro";
 
   .bloque-item {
     flex: 1;
-    border: none;
     background-color: var(--clr-dark);
     padding: 0px;
     gap: 8px;
@@ -171,13 +164,10 @@ import AddCity from "../components/create_city.astro";
     justify-content: center;
   }
 
-  @media (max-width: 600px) {
-    .bloque-content {
-      flex-direction: column;
-    }
-
-    .campaign-card {
-      width: 100%;
+  @media (hover: hover) {
+    .campaign-card .delete-campaign:hover,
+    .campaign-card .edit-campaign:hover {
+      color: var(--clr-main);
     }
   }
 </style>

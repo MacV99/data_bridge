@@ -27,7 +27,7 @@
   </div>
 </div>
 
-<!-- ESTILOS ESTÁTICOS -->
+<!-- Estilos del modal -->
 <style>
   #modal-add-city {
     background-color: var(--clr-dark);
@@ -62,10 +62,7 @@
     background-color: var(--clr-dark);
     padding: 7px;
     z-index: 100;
-  }
-
-  #modal-add-city .close:hover {
-    background-color: var(--clr-border);
+    transition: var(--transition);
   }
 
   #modal-add-city input {
@@ -82,9 +79,15 @@
     gap: 5px;
     width: 100%;
   }
+
+  @media (hover: hover) {
+    #modal-add-city .close:hover {
+      background-color: var(--clr-border);
+    }
+  }
 </style>
 
-<!-- ESTILOS DINÁMICOS -->
+<!-- Estilos dinámicos de duplas -->
 <style is:inline>
   .dupla-block {
     width: 100%;
@@ -127,9 +130,9 @@
     gap: 5px;
     display: flex;
     flex-direction: column;
-    display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
   }
 
   .bloque-item input[type="file"] {
@@ -145,13 +148,6 @@
     width: 100%;
     min-height: 120px;
     max-height: 120px;
-    resize: none;
-  }
-
-  @media (max-width: 600px) {
-    .dupla-content {
-      flex-direction: column;
-    }
   }
 </style>
 
