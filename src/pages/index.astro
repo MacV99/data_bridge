@@ -63,12 +63,12 @@ import AddCity from "../components/create_city.astro";
     color: var(--clr-gray);
     cursor: pointer;
     font-size: 20px;
-    padding: 7px;
+    padding: 9px;
     transition: var(--transition);
   }
 
   .campaign-card .edit-campaign {
-    right: 53px;
+    right: 57px;
   }
 
   .campaign-header {
@@ -175,7 +175,15 @@ import AddCity from "../components/create_city.astro";
 <script>
   //@ts-nocheck
 
+  // ============================================
+  // REFERENCIAS DOM
+  // ============================================
+
   const $dashboard = document.getElementById("dashboard");
+
+  // ============================================
+  // EVENT LISTENERS
+  // ============================================
 
   document.addEventListener("DOMContentLoaded", () => {
     renderCampaigns();
@@ -185,9 +193,14 @@ import AddCity from "../components/create_city.astro";
     renderCampaigns();
   });
 
+  // ============================================
+  // FUNCIONES - RENDERIZADO
+  // ============================================
+
   function renderCampaigns() {
     const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
 
+    // Estado vacío
     if (campaigns.length === 0) {
       $dashboard.innerHTML = `
         <div class="empty-state flex-column">
@@ -199,24 +212,22 @@ import AddCity from "../components/create_city.astro";
       return;
     }
 
+    // Renderizar campañas
     $dashboard.innerHTML = campaigns
       .map(
         (campaign) => `
       <div class="campaign-card" data-id="${campaign.id}">
         <i class="bi bi-pencil-square edit-campaign" data-id="${campaign.id}"></i>
         <i class="bi bi-trash delete-campaign" data-id="${campaign.id}"></i>
-        
         <div class="campaign-header">
           <h5>${campaign.cityName.toUpperCase()}</h5>
           <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
         </div>
-
         ${campaign.duplas
           .map(
             (dupla, index) => `
           <div class="bloque">
             <h6>DUPLA #${index + 1}: ${dupla.name}</h6>
-            
             <div class="bloque-content">
               <div class="bloque-item">
                 <img src="${dupla.image}" alt="Imagen ${dupla.name}" />
@@ -224,7 +235,6 @@ import AddCity from "../components/create_city.astro";
                   <i class="bi bi-download"></i>
                 </button>
               </div>
-
               <div class="bloque-item">
                 <p>${escapeHtml(dupla.text)}</p>
                 <button class="boton copy-text" data-text="${escapeHtml(dupla.text)}">
@@ -244,7 +254,17 @@ import AddCity from "../components/create_city.astro";
     addEventListeners();
   }
 
+  // ============================================
+  // FUNCIONES - EVENT LISTENERS DINÁMICOS
+  // ============================================
+
   function addEventListeners() {
+    addCopyTextListener();
+    addDownloadImageListener();
+    addDeleteCampaignListener();
+  }
+
+  function addCopyTextListener() {
     document.querySelectorAll(".copy-text").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const text = e.currentTarget.dataset.text;
@@ -257,7 +277,9 @@ import AddCity from "../components/create_city.astro";
         });
       });
     });
+  }
 
+  function addDownloadImageListener() {
     document.querySelectorAll(".download-img").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const imgData = e.currentTarget.dataset.img;
@@ -265,7 +287,9 @@ import AddCity from "../components/create_city.astro";
         downloadImage(imgData, fileName);
       });
     });
+  }
 
+  function addDeleteCampaignListener() {
     document.querySelectorAll(".delete-campaign").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const id = parseInt(e.currentTarget.dataset.id);
@@ -275,6 +299,10 @@ import AddCity from "../components/create_city.astro";
       });
     });
   }
+
+  // ============================================
+  // FUNCIONES - ACCIONES
+  // ============================================
 
   function downloadImage(dataUrl, fileName) {
     const link = document.createElement("a");
@@ -289,6 +317,10 @@ import AddCity from "../components/create_city.astro";
     localStorage.setItem("campaigns", JSON.stringify(campaigns));
     renderCampaigns();
   }
+
+  // ============================================
+  // FUNCIONES - UTILIDADES
+  // ============================================
 
   function formatDate(dateString) {
     const date = new Date(dateString + "T00:00:00");

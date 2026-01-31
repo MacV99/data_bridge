@@ -35,6 +35,10 @@
 <script>
   //@ts-nocheck
 
+  // ============================================
+  // MODAL: Control de apertura
+  // ============================================
+
   const $openAddCityModal = document.querySelector(".open-modal");
   const $modalOverlay = document.querySelector(".modal-overlay");
   const $duplasContainer = document.getElementById("duplas-container");
@@ -42,6 +46,7 @@
   $openAddCityModal?.addEventListener("click", () => {
     $modalOverlay.style.display = "flex";
 
+    // Inicializar duplas si es la primera vez
     if ($duplasContainer && $duplasContainer.children.length === 0) {
       window.dispatchEvent(new CustomEvent("initializeDuplas"));
     }

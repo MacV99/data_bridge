@@ -154,7 +154,12 @@
 <script>
   //@ts-nocheck
 
-  // Referencias DOM
+  // ============================================
+  // CONSTANTES Y REFERENCIAS DOM
+  // ============================================
+
+  const DUPLA_NAMES = ["INFO", "LUGAR"];
+
   const $closeModal = document.querySelector("#modal-add-city .close");
   const $modalOverlay = document.querySelector(".modal-overlay");
   const $cancelButton = document.querySelector("#modal-add-city .cancel");
@@ -163,19 +168,33 @@
   const $cityNameInput = document.getElementById("city-name");
   const $startDateInput = document.getElementById("start-date");
 
-  // Nombres fijos de las duplas
-  const DUPLA_NAMES = ["INFO", "LUGAR"];
+  // ============================================
+  // EVENT LISTENERS
+  // ============================================
 
-  // Event Listeners
   $closeModal?.addEventListener("click", closeModal);
   $cancelButton?.addEventListener("click", closeModal);
   $saveButton?.addEventListener("click", saveCampaign);
+  window.addEventListener("initializeDuplas", initializeDuplasHandler);
 
-  // Funciones
+  // ============================================
+  // FUNCIONES - MODAL
+  // ============================================
+
   function closeModal() {
     $modalOverlay.style.display = "none";
     resetForm();
   }
+
+  function resetForm() {
+    $cityNameInput.value = "";
+    $startDateInput.value = "";
+    createDuplas();
+  }
+
+  // ============================================
+  // FUNCIONES - DUPLAS
+  // ============================================
 
   function createDuplas() {
     $duplasContainer.innerHTML = "";
@@ -188,15 +207,13 @@
 
       duplaBlock.innerHTML = `
         <h6>DUPLA #${duplaNumber}: ${name}</h6>
-        
         <div class="dupla-content">
           <div class="bloque-item">
-            <label class="pointer">
+            <label>
               <i class="bi bi-upload"></i>
               <input type="file" class="dupla-img" accept="image/*" required />
             </label>
           </div>
-          
           <div class="bloque-item">
             <label>
               <textarea class="dupla-text" placeholder="Escribe el texto aquí..." required></textarea>
@@ -209,10 +226,21 @@
     });
   }
 
+  function initializeDuplasHandler() {
+    if ($duplasContainer.children.length === 0) {
+      createDuplas();
+    }
+  }
+
+  // ============================================
+  // FUNCIONES - GUARDADO Y VALIDACIÓN
+  // ============================================
+
   async function saveCampaign() {
     const cityName = $cityNameInput.value.trim();
     const startDate = $startDateInput.value;
 
+    // Validaciones
     if (!cityName) {
       alert("Por favor ingresa el nombre de la ciudad");
       return;
@@ -226,6 +254,7 @@
     const duplas = [];
     const duplaBlocks = $duplasContainer.querySelectorAll(".dupla-block");
 
+    // Recolectar datos de duplas
     for (const block of duplaBlocks) {
       const imgInput = block.querySelector(".dupla-img");
       const textInput = block.querySelector(".dupla-text");
@@ -250,6 +279,7 @@
       });
     }
 
+    // Crear campaña y guardar
     const campaign = {
       id: Date.now(),
       cityName,
@@ -262,12 +292,16 @@
     campaigns.push(campaign);
     localStorage.setItem("campaigns", JSON.stringify(campaigns));
 
+    // Notificar cambio
     window.dispatchEvent(
       new CustomEvent("campaignAdded", { detail: campaign }),
     );
-
     closeModal();
   }
+
+  // ============================================
+  // FUNCIONES - UTILIDADES
+  // ============================================
 
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -277,16 +311,4 @@
       reader.readAsDataURL(file);
     });
   }
-
-  function resetForm() {
-    $cityNameInput.value = "";
-    $startDateInput.value = "";
-    createDuplas();
-  }
-
-  window.addEventListener("initializeDuplas", () => {
-    if ($duplasContainer.children.length === 0) {
-      createDuplas();
-    }
-  });
 </script>
