@@ -51,7 +51,8 @@ import AddCity from "../components/create_city.astro";
     text-align: left;
   }
 
-  .campaign-card .delete-campaign {
+  .campaign-card .delete-campaign,
+  .campaign-card .edit-campaign {
     position: absolute;
     top: 15px;
     right: 15px;
@@ -67,7 +68,12 @@ import AddCity from "../components/create_city.astro";
     padding: 7px;
   }
 
-  .campaign-card .delete-campaign:hover {
+  .campaign-card .edit-campaign {
+    right: 53px;
+  }
+
+  .campaign-card .delete-campaign:hover,
+  .campaign-card .edit-campaign:hover {
     color: var(--clr-main);
   }
 
@@ -131,7 +137,7 @@ import AddCity from "../components/create_city.astro";
 
   .bloque-item img {
     width: 100%;
-    max-height: 180px;
+    height: 192px;
     object-fit: cover;
     border: solid 1px var(--clr-border);
   }
@@ -144,7 +150,7 @@ import AddCity from "../components/create_city.astro";
     color: var(--clr-text);
     font-size: 0.85rem;
     line-height: 1.4;
-    max-height: 120px;
+    height: 192px;
     overflow-y: auto;
   }
 
@@ -207,6 +213,7 @@ import AddCity from "../components/create_city.astro";
       .map(
         (campaign) => `
       <div class="campaign-card" data-id="${campaign.id}">
+        <i class="bi bi-pencil-square edit-campaign" data-id="${campaign.id}"></i>
         <i class="bi bi-trash delete-campaign" data-id="${campaign.id}"></i>
         
         <div class="campaign-header">
