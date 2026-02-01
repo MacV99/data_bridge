@@ -129,22 +129,23 @@ import AddCity from "../components/create_city.astro";
   }
 
   .bloque-item img {
-    width: 100%;
+    width: 192px;
     height: 192px;
     object-fit: cover;
     border: solid 1px var(--clr-border);
   }
 
   .bloque-item p {
-    width: 100%;
     padding: 8px;
     background-color: var(--clr-dark2);
     border: solid 1px var(--clr-border);
     color: var(--clr-text);
     font-size: 0.85rem;
-    line-height: 1.4;
+    line-height: 1.2;
     height: 192px;
-    overflow-y: auto;
+    width: 192px;
+    overflow: hidden;
+    overflow-wrap: break-word;
   }
 
   .bloque-item button {
@@ -220,8 +221,9 @@ import AddCity from "../components/create_city.astro";
         <i class="bi bi-pencil-square edit-campaign" data-id="${campaign.id}"></i>
         <i class="bi bi-trash delete-campaign" data-id="${campaign.id}"></i>
         <div class="campaign-header">
-          <h5>${campaign.cityName.toUpperCase()}</h5>
+          <h5>${campaign.cityName}</h5>
           <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
+          <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
         </div>
         ${campaign.duplas
           .map(
@@ -231,7 +233,7 @@ import AddCity from "../components/create_city.astro";
             <div class="bloque-content">
               <div class="bloque-item">
                 <img src="${dupla.image}" alt="Imagen ${dupla.name}" />
-                <button class="boton download-img" data-img="${dupla.image}" data-name="${campaign.cityName}_${dupla.name}_img">
+                <button class="boton download-img" data-img="${dupla.image}" data-name="${getImageFileName(campaign.cityName, index)}">
                   <i class="bi bi-download"></i>
                 </button>
               </div>
@@ -262,6 +264,7 @@ import AddCity from "../components/create_city.astro";
     addCopyTextListener();
     addDownloadImageListener();
     addDeleteCampaignListener();
+    addEditCampaignListener();
   }
 
   function addCopyTextListener() {
@@ -293,8 +296,37 @@ import AddCity from "../components/create_city.astro";
     document.querySelectorAll(".delete-campaign").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const id = parseInt(e.currentTarget.dataset.id);
-        if (confirm("¿Estás seguro de eliminar esta campaña?")) {
+        const $confirmOverlay = document.getElementById(
+          "modal-confirm-overlay",
+        );
+        const $confirmMessage = document.getElementById("confirm-message");
+        const $confirmYes = document.querySelector(".confirm-yes");
+
+        $confirmMessage.textContent = "¿Estás seguro de eliminar esta campaña?";
+        $confirmOverlay.style.display = "flex";
+
+        const handleConfirm = () => {
           deleteCampaign(id);
+          $confirmOverlay.style.display = "none";
+          $confirmYes.removeEventListener("click", handleConfirm);
+        };
+
+        $confirmYes.addEventListener("click", handleConfirm);
+      });
+    });
+  }
+
+  function addEditCampaignListener() {
+    document.querySelectorAll(".edit-campaign").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const id = parseInt(e.currentTarget.dataset.id);
+        const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+        const campaign = campaigns.find((c) => c.id === id);
+
+        if (campaign) {
+          window.dispatchEvent(
+            new CustomEvent("editCampaign", { detail: campaign }),
+          );
         }
       });
     });
@@ -323,12 +355,13 @@ import AddCity from "../components/create_city.astro";
   // ============================================
 
   function formatDate(dateString) {
-    const date = new Date(dateString + "T00:00:00");
-    return date.toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  }
+
+  function getImageFileName(cityName, duplaIndex) {
+    const suffix = duplaIndex === 0 ? "1" : "5";
+    return `${cityName}${suffix}`;
   }
 
   function escapeHtml(text) {

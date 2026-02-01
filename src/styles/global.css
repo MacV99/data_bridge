@@ -41,7 +41,6 @@ html {
 
 body {
   min-height: 100dvh;
-  line-height: 1.6;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -100,6 +99,29 @@ hr {
 
 
 /* ============================================
+  SCROLLBAR PERSONALIZADO
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--clr-text);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--clr-main);
+}
+
+
+/* ============================================
   UTILIDADES - FLEXBOX
    ============================================ */
 
@@ -153,9 +175,10 @@ button,
    ============================================ */
 
 input,
-textarea {
+textarea,
+select {
   outline: none;
-  border: none;
+  border: solid 1px var(--clr-border);
   background-color: transparent;
   padding: 7px 10px;
   font-size: 1rem;
@@ -165,8 +188,20 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   background-color: var(--clr-border);
+}
+
+select {
+  cursor: pointer;
+  border: solid 1px var(--clr-border);
+  background-color: var(--clr-dark1);
+}
+
+select option {
+  background-color: var(--clr-dark2);
+  color: var(--clr-white);
 }
 
 textarea {
@@ -176,6 +211,10 @@ textarea {
 label {
   display: flex;
   flex-direction: column;
+}
+
+input[type="file"] {
+  cursor: pointer;
 }
 
 

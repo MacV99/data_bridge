@@ -1,8 +1,8 @@
-<div class="modal-overlay">
+<div class="modal-overlay" id="modal-campaign-overlay">
   <div id="modal-add-city" class="flex-column">
     <i class="bi bi-x-lg close"></i>
 
-    <h3>Nueva Campaña</h3>
+    <h3 id="modal-title">Nueva Campaña</h3>
 
     <input
       id="city-name"
@@ -10,12 +10,21 @@
       placeholder="NOMBRE DE LA CIUDAD"
       required
     />
-    <input id="start-date" type="date" required />
+
+    <div class="flex-row" style="width: 100%; gap: 5px;">
+      <input id="start-date" type="date" required style=" font-size: 0.8rem;" />
+
+      <select id="phone-number" required style="font-size: 0.8rem;">
+        <option value="" disabled selected hidden>NÚMERO</option>
+        <option value="DARIO">DARIO: 15558720556</option>
+        <option value="CURSOS">CURSOS: 15558432527</option>
+      </select>
+    </div>
 
     <hr />
 
     <div id="duplas-container" class="flex-column">
-      <!-- Las 2 duplas fijas se generarán aquí -->
+      <!-- Las 2 duplas se generarán aquí -->
     </div>
 
     <hr />
@@ -27,16 +36,37 @@
   </div>
 </div>
 
-<!-- Estilos del modal -->
+<!-- Modal de Confirmación -->
+<div class="modal-overlay" id="modal-confirm-overlay">
+  <div id="modal-confirm" class="flex-column">
+    <i class="bi bi-exclamation-triangle-fill icon-warning"></i>
+    <h4 id="confirm-message">¿Estás seguro?</h4>
+    <div class="buttons flex-row">
+      <button class="boton confirm-yes">Sí</button>
+      <button class="boton2 confirm-no">No</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Alerta -->
+<div class="modal-overlay" id="modal-alert-overlay">
+  <div id="modal-alert" class="flex-column">
+    <i class="bi bi-info-circle-fill icon-info"></i>
+    <p id="alert-message">Mensaje de alerta</p>
+    <button class="boton alert-ok">Entendido</button>
+  </div>
+</div>
+
+<!-- Estilos del modal principal -->
 <style>
   #modal-add-city {
     background-color: var(--clr-dark);
-    padding: 20px;
+    padding: 15px 20px;
     border: solid 1px var(--clr-border);
-    width: 600px;
+    width: 470px;
     max-width: 90%;
     position: relative;
-    gap: 10px;
+    gap: 5px;
     align-items: flex-start;
     justify-content: flex-start;
     max-height: 88vh;
@@ -48,7 +78,7 @@
     width: 100%;
     text-align: center;
     color: var(--clr-main);
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     text-transform: uppercase;
   }
 
@@ -65,14 +95,15 @@
     transition: var(--transition);
   }
 
-  #modal-add-city input {
+  #modal-add-city input,
+  #modal-add-city select {
     width: 100%;
     text-transform: uppercase;
   }
 
   #duplas-container {
     width: 100%;
-    gap: 15px;
+    gap: 7px;
   }
 
   .buttons {
@@ -87,12 +118,42 @@
   }
 </style>
 
+<!-- Estilos de modales de confirmación y alerta -->
+<style>
+  #modal-confirm,
+  #modal-alert {
+    background-color: var(--clr-dark);
+    padding: 30px 20px;
+    border: solid 1px var(--clr-border);
+    width: 400px;
+    max-width: 90%;
+    gap: 15px;
+    text-align: center;
+  }
+
+  #modal-confirm h4,
+  #modal-alert p {
+    color: var(--clr-white);
+    font-size: 1rem;
+  }
+
+  #modal-confirm .icon-warning {
+    font-size: 3rem;
+    color: var(--clr-main);
+  }
+
+  #modal-alert .icon-info {
+    font-size: 3rem;
+    color: var(--clr-main);
+  }
+</style>
+
 <!-- Estilos dinámicos de duplas -->
 <style is:inline>
   .dupla-block {
     width: 100%;
     background-color: var(--clr-dark2);
-    padding: 15px;
+    padding: 13px 15px;
     gap: 10px;
     position: relative;
   }
@@ -111,6 +172,8 @@
     display: flex;
     flex-direction: row;
     gap: 5px;
+    justify-content: space-between;
+    padding: 0 1px;
   }
 
   .dupla-content .bloque-item {
@@ -122,17 +185,23 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+    width: 192px;
+    height: 192px;
+    flex: 0 0 auto;
   }
 
-  .bloque-item label {
-    width: 100%;
-    height: 100%;
+  .bloque-item label.image-label {
+    width: 192px;
+    height: 192px;
+    min-height: 120px;
     gap: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
   }
 
   .bloque-item input[type="file"] {
@@ -144,10 +213,23 @@
     color: var(--clr-text);
   }
 
+  .bloque-item label img.preview {
+    width: 192px;
+    height: 192px;
+    min-height: 120px;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .bloque-item label {
+    height: 100%;
+  }
+
   .bloque-item textarea {
     width: 100%;
-    min-height: 120px;
-    max-height: 120px;
+    height: 100%;
   }
 </style>
 
@@ -161,12 +243,27 @@
   const DUPLA_NAMES = ["INFO", "LUGAR"];
 
   const $closeModal = document.querySelector("#modal-add-city .close");
-  const $modalOverlay = document.querySelector(".modal-overlay");
+  const $modalOverlay = document.getElementById("modal-campaign-overlay");
   const $cancelButton = document.querySelector("#modal-add-city .cancel");
   const $saveButton = document.querySelector(".save-campaign");
   const $duplasContainer = document.getElementById("duplas-container");
   const $cityNameInput = document.getElementById("city-name");
   const $startDateInput = document.getElementById("start-date");
+  const $phoneNumberSelect = document.getElementById("phone-number");
+  const $modalTitle = document.getElementById("modal-title");
+
+  // Modales de confirmación y alerta
+  const $confirmOverlay = document.getElementById("modal-confirm-overlay");
+  const $confirmMessage = document.getElementById("confirm-message");
+  const $confirmYes = document.querySelector(".confirm-yes");
+  const $confirmNo = document.querySelector(".confirm-no");
+
+  const $alertOverlay = document.getElementById("modal-alert-overlay");
+  const $alertMessage = document.getElementById("alert-message");
+  const $alertOk = document.querySelector(".alert-ok");
+
+  let editingCampaignId = null;
+  let confirmCallback = null;
 
   // ============================================
   // EVENT LISTENERS
@@ -176,9 +273,34 @@
   $cancelButton?.addEventListener("click", closeModal);
   $saveButton?.addEventListener("click", saveCampaign);
   window.addEventListener("initializeDuplas", initializeDuplasHandler);
+  window.addEventListener("editCampaign", handleEditCampaign);
+
+  // Cerrar modales con ESC y click en overlay
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeModal();
+      closeConfirmModal();
+      closeAlertModal();
+    }
+  });
+
+  $modalOverlay?.addEventListener("click", (e) => {
+    if (e.target === $modalOverlay) closeModal();
+  });
+
+  $confirmOverlay?.addEventListener("click", (e) => {
+    if (e.target === $confirmOverlay) closeConfirmModal();
+  });
+
+  $alertOverlay?.addEventListener("click", (e) => {
+    if (e.target === $alertOverlay) closeAlertModal();
+  });
+
+  $confirmNo?.addEventListener("click", closeConfirmModal);
+  $alertOk?.addEventListener("click", closeAlertModal);
 
   // ============================================
-  // FUNCIONES - MODAL
+  // FUNCIONES - MODAL PRINCIPAL
   // ============================================
 
   function closeModal() {
@@ -187,16 +309,52 @@
   }
 
   function resetForm() {
+    editingCampaignId = null;
+    $modalTitle.textContent = "Nueva Campaña";
     $cityNameInput.value = "";
     $startDateInput.value = "";
+    $phoneNumberSelect.value = "";
     createDuplas();
+  }
+
+  // ============================================
+  // FUNCIONES - MODAL DE CONFIRMACIÓN
+  // ============================================
+
+  function showConfirmModal(message, callback) {
+    $confirmMessage.textContent = message;
+    confirmCallback = callback;
+    $confirmOverlay.style.display = "flex";
+  }
+
+  function closeConfirmModal() {
+    $confirmOverlay.style.display = "none";
+    confirmCallback = null;
+  }
+
+  $confirmYes?.addEventListener("click", () => {
+    if (confirmCallback) confirmCallback();
+    closeConfirmModal();
+  });
+
+  // ============================================
+  // FUNCIONES - MODAL DE ALERTA
+  // ============================================
+
+  function showAlertModal(message) {
+    $alertMessage.textContent = message;
+    $alertOverlay.style.display = "flex";
+  }
+
+  function closeAlertModal() {
+    $alertOverlay.style.display = "none";
   }
 
   // ============================================
   // FUNCIONES - DUPLAS
   // ============================================
 
-  function createDuplas() {
+  function createDuplas(existingDuplas = null) {
     $duplasContainer.innerHTML = "";
 
     DUPLA_NAMES.forEach((name, index) => {
@@ -205,24 +363,73 @@
       duplaBlock.className = "dupla-block flex-column";
       duplaBlock.dataset.duplaName = name;
 
+      const existingDupla = existingDuplas?.find((d) => d.name === name);
+      const existingText = existingDupla?.text || "";
+      const existingImage = existingDupla?.image || "";
+
       duplaBlock.innerHTML = `
-        <h6>DUPLA #${duplaNumber}: ${name}</h6>
+        <h6>DUPLA #${duplaNumber}: ${name}${duplaNumber === 2 ? " (OPCIONAL)" : ""}</h6>
         <div class="dupla-content">
           <div class="bloque-item">
-            <label>
+            <label class="image-label">
               <i class="bi bi-upload"></i>
-              <input type="file" class="dupla-img" accept="image/*" required />
+              <input type="file" class="dupla-img" accept="image/*" ${duplaNumber === 1 ? "required" : ""} />
             </label>
           </div>
           <div class="bloque-item">
             <label>
-              <textarea class="dupla-text" placeholder="Escribe el texto aquí..." required></textarea>
+              <textarea class="dupla-text" placeholder="Escribe el texto aquí..." ${duplaNumber === 1 ? "required" : ""}>${existingText}</textarea>
             </label>
           </div>
         </div>
       `;
 
       $duplasContainer.appendChild(duplaBlock);
+
+      // Referencias
+      const imgInput = duplaBlock.querySelector(".dupla-img");
+      const imgLabel = duplaBlock.querySelector(".image-label");
+      const uploadIcon = imgLabel.querySelector(".bi-upload");
+
+      // Si hay imagen existente, mostrarla
+      if (existingImage) {
+        imgInput.dataset.existingImage = existingImage;
+        const previewImg = document.createElement("img");
+        previewImg.src = existingImage;
+        previewImg.alt = "Preview";
+        previewImg.className = "preview";
+        imgLabel.appendChild(previewImg);
+        uploadIcon.style.display = "none";
+      }
+
+      // Event listener para preview de imagen
+      imgInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            // Eliminar preview anterior si existe
+            const existingPreview = imgLabel.querySelector(".preview");
+            if (existingPreview) {
+              existingPreview.remove();
+            }
+
+            // Crear nueva imagen preview
+            const previewImg = document.createElement("img");
+            previewImg.src = event.target.result;
+            previewImg.alt = "Preview";
+            previewImg.className = "preview";
+            imgLabel.appendChild(previewImg);
+
+            // Ocultar icono de upload
+            uploadIcon.style.display = "none";
+
+            // Limpiar dataset de imagen existente
+            delete imgInput.dataset.existingImage;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
     });
   }
 
@@ -233,21 +440,45 @@
   }
 
   // ============================================
+  // FUNCIONES - EDICIÓN DE CAMPAÑA
+  // ============================================
+
+  function handleEditCampaign(event) {
+    const campaign = event.detail;
+    editingCampaignId = campaign.id;
+
+    $modalTitle.textContent = "Editar Campaña";
+    $cityNameInput.value = campaign.cityName;
+    $startDateInput.value = campaign.startDate;
+    $phoneNumberSelect.value = campaign.phoneNumber;
+
+    createDuplas(campaign.duplas);
+
+    $modalOverlay.style.display = "flex";
+  }
+
+  // ============================================
   // FUNCIONES - GUARDADO Y VALIDACIÓN
   // ============================================
 
   async function saveCampaign() {
-    const cityName = $cityNameInput.value.trim();
+    const cityName = normalizeCityName($cityNameInput.value);
     const startDate = $startDateInput.value;
+    const phoneNumber = $phoneNumberSelect.value;
 
-    // Validaciones
+    // Validaciones básicas
     if (!cityName) {
-      alert("Por favor ingresa el nombre de la ciudad");
+      showAlertModal("Por favor ingresa el nombre de la ciudad");
       return;
     }
 
     if (!startDate) {
-      alert("Por favor selecciona la fecha de inicio");
+      showAlertModal("Por favor selecciona la fecha de inicio");
+      return;
+    }
+
+    if (!phoneNumber) {
+      showAlertModal("Por favor selecciona el número de teléfono");
       return;
     }
 
@@ -255,53 +486,107 @@
     const duplaBlocks = $duplasContainer.querySelectorAll(".dupla-block");
 
     // Recolectar datos de duplas
-    for (const block of duplaBlocks) {
+    for (let i = 0; i < duplaBlocks.length; i++) {
+      const block = duplaBlocks[i];
       const imgInput = block.querySelector(".dupla-img");
       const textInput = block.querySelector(".dupla-text");
       const duplaName = block.dataset.duplaName;
+      const isDupla1 = i === 0;
 
-      if (!imgInput.files[0]) {
-        alert("Por favor selecciona todas las imágenes");
-        return;
+      // Verificar si hay archivo nuevo o imagen existente
+      const hasNewFile =
+        imgInput && imgInput.files && imgInput.files.length > 0;
+      const hasExistingImage =
+        imgInput && imgInput.dataset && imgInput.dataset.existingImage;
+      const hasText = textInput && textInput.value.trim();
+
+      // Validar dupla 1 (obligatoria)
+      if (isDupla1) {
+        if (!hasNewFile && !hasExistingImage) {
+          showAlertModal("Por favor selecciona la imagen de la DUPLA #1");
+          return;
+        }
+
+        if (!hasText) {
+          showAlertModal("Por favor completa el texto de la DUPLA #1");
+          return;
+        }
       }
 
-      if (!textInput.value.trim()) {
-        alert("Por favor completa todos los textos");
-        return;
+      // Dupla 2 es opcional - solo agregar si tiene contenido
+      if (hasNewFile || hasExistingImage || hasText) {
+        let imgBase64 = null;
+
+        // Prioridad: archivo nuevo > imagen existente
+        if (hasNewFile) {
+          imgBase64 = await fileToBase64(imgInput.files[0]);
+        } else if (hasExistingImage) {
+          imgBase64 = imgInput.dataset.existingImage;
+        } else if (!isDupla1) {
+          continue; // Skip dupla 2 si no tiene imagen
+        }
+
+        if (imgBase64) {
+          duplas.push({
+            name: duplaName,
+            image: imgBase64,
+            text: hasText ? textInput.value.trim() : "",
+          });
+        }
       }
-
-      const imgBase64 = await fileToBase64(imgInput.files[0]);
-
-      duplas.push({
-        name: duplaName,
-        image: imgBase64,
-        text: textInput.value.trim(),
-      });
     }
 
-    // Crear campaña y guardar
+    // Verificar que al menos dupla 1 exista
+    if (duplas.length === 0) {
+      showAlertModal("Debes completar al menos la DUPLA #1");
+      return;
+    }
+
+    // Crear o actualizar campaña
     const campaign = {
-      id: Date.now(),
+      id: editingCampaignId || Date.now(),
       cityName,
       startDate,
+      phoneNumber,
       duplas,
-      createdAt: new Date().toISOString(),
+      createdAt: editingCampaignId
+        ? JSON.parse(localStorage.getItem("campaigns") || "[]").find(
+            (c) => c.id === editingCampaignId,
+          )?.createdAt
+        : new Date().toISOString(),
     };
 
-    const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
-    campaigns.push(campaign);
+    let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+
+    if (editingCampaignId) {
+      campaigns = campaigns.map((c) =>
+        c.id === editingCampaignId ? campaign : c,
+      );
+    } else {
+      campaigns.push(campaign);
+    }
+
     localStorage.setItem("campaigns", JSON.stringify(campaigns));
 
     // Notificar cambio
     window.dispatchEvent(
       new CustomEvent("campaignAdded", { detail: campaign }),
     );
+
     closeModal();
   }
 
   // ============================================
   // FUNCIONES - UTILIDADES
   // ============================================
+
+  function normalizeCityName(name) {
+    return name
+      .trim()
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // Elimina tildes
+  }
 
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
