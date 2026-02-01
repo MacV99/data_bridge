@@ -143,7 +143,7 @@ import CreateCity from "../components/create_city.astro";
   }
 
   .bloque {
-    padding: 12px;
+    padding: 5px;
     width: 100%;
     gap: 10px;
     background-color: var(--clr-dark);
@@ -186,7 +186,7 @@ import CreateCity from "../components/create_city.astro";
 
   .bloque-item p {
     padding: 8px;
-    background-color: var(--clr-dark2);
+    background-color: var(--clr-dark);
     border: solid 1px var(--clr-border);
     color: var(--clr-text);
     font-size: 0.85rem;
@@ -225,74 +225,31 @@ import CreateCity from "../components/create_city.astro";
   .campaign-detail-modal {
     background-color: var(--clr-dark);
     border: solid 1px var(--clr-border);
-    width: 600px;
+    width: 470px;
     max-width: 90%;
     max-height: 85vh;
     overflow-y: auto;
-    gap: 0;
-    padding: 0;
+    justify-content: flex-start;
+    padding: 15px 20px;
     scroll-behavior: smooth;
     position: relative;
-  }
-
-  .campaign-detail-modal .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: solid 1px var(--clr-border);
-    width: 100%;
-    position: relative;
-  }
-
-  .campaign-detail-modal .modal-header h3 {
-    color: var(--clr-main);
-    margin: 0;
-    font-size: 1.3rem;
-    cursor: pointer;
-    text-transform: uppercase;
-    flex: 1;
-    text-align: center;
-  }
-
-  .modal-header-actions {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-  }
-
-  .modal-header-actions i {
-    background-color: var(--clr-dark2);
-    border: solid 1px var(--clr-border);
-    color: var(--clr-gray);
-    padding: 8px;
-    border-radius: 0;
-    transition: var(--transition);
-    cursor: pointer;
-  }
-
-  @media (hover: hover) {
-    .modal-header-actions i:hover {
-      color: var(--clr-main);
-      background-color: var(--clr-border);
-    }
-  }
-
-  .campaign-detail-modal .modal-content {
-    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
   }
 
   .campaign-detail-modal .campaign-header {
     width: 100%;
     gap: 5px;
-    padding-bottom: 15px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    border-bottom: solid 1px var(--clr-border);
+  }
+
+  .campaign-detail-modal .campaign-header .header-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .campaign-detail-modal .campaign-header h5 {
@@ -300,6 +257,27 @@ import CreateCity from "../components/create_city.astro";
     font-size: 1.1rem;
     cursor: copy;
     margin: 0;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .header-actions i {
+    background-color: var(--clr-dark2);
+    border: solid 1px var(--clr-border);
+    color: var(--clr-gray);
+    padding: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  @media (hover: hover) {
+    .header-actions i:hover {
+      color: var(--clr-main);
+      background-color: var(--clr-border);
+    }
   }
 
   .campaign-detail-modal .campaign-header p {
@@ -319,16 +297,13 @@ import CreateCity from "../components/create_city.astro";
   .campaign-detail-modal .duplas-detail {
     display: flex;
     flex-direction: column;
-    gap: 10px;
   }
 
   .campaign-status-switcher-modal {
     width: 100%;
     display: flex;
-    gap: 5px;
-    padding-top: 15px;
-    border-top: solid 1px var(--clr-border);
-    margin-top: 15px;
+    gap: 7px;
+    margin-top: 7px;
   }
 
   .status-btn {
@@ -412,7 +387,7 @@ import CreateCity from "../components/create_city.astro";
     $pendienteDiv.innerHTML = `
       <h2>PENDIENTES</h2>
       <div class="campaigns-container">
-        ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ''}
+        ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ""}
         ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
       </div>
     `;
@@ -420,7 +395,7 @@ import CreateCity from "../components/create_city.astro";
     $montadaDiv.innerHTML = `
       <h2>MONTADAS</h2>
       <div class="campaigns-container">
-        ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ''}
+        ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ""}
         ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
       </div>
     `;
@@ -544,17 +519,21 @@ import CreateCity from "../components/create_city.astro";
   }
 
   function addCardClickListener() {
-    document.querySelectorAll(".campaign-header.clickable").forEach((header) => {
-      header.addEventListener("click", (e) => {
-        const card = e.currentTarget.closest(".campaign-card");
-        const id = parseInt(card.dataset.id);
-        const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
-        const campaign = campaigns.find((c) => c.id === id);
-        if (campaign) {
-          openCampaignModal(campaign);
-        }
+    document
+      .querySelectorAll(".campaign-header.clickable")
+      .forEach((header) => {
+        header.addEventListener("click", (e) => {
+          const card = e.currentTarget.closest(".campaign-card");
+          const id = parseInt(card.dataset.id);
+          const campaigns = JSON.parse(
+            localStorage.getItem("campaigns") || "[]",
+          );
+          const campaign = campaigns.find((c) => c.id === id);
+          if (campaign) {
+            openCampaignModal(campaign);
+          }
+        });
       });
-    });
   }
 
   // ============================================
@@ -588,21 +567,20 @@ import CreateCity from "../components/create_city.astro";
   function openCampaignModal(campaign) {
     const modalHtml = `
       <div class="modal-overlay" id="campaign-detail-overlay" style="display: flex;">
+        <i class="bi bi-x-lg close-campaign-modal" style="position: fixed; top: 20px; right: 20px; cursor: pointer; font-size: 20px; background-color: var(--clr-dark); border: solid 1px var(--clr-border); padding: 7px; z-index: 100;"></i>
         <div class="campaign-detail-modal flex-column">
-          <div class="modal-header">
-            <h3 data-copy-modal="${campaign.cityName}">${campaign.cityName}</h3>
-            <div class="modal-header-actions">
-              <i class="bi bi-pencil-square edit-campaign-modal" data-id="${campaign.id}" style="cursor: pointer; font-size: 20px; margin-right: 10px;"></i>
-              <i class="bi bi-trash delete-campaign-modal" data-id="${campaign.id}" style="cursor: pointer; font-size: 20px; margin-right: 10px;"></i>
-              <i class="bi bi-x-lg close-campaign-modal" style="cursor: pointer; font-size: 20px;"></i>
-            </div>
-          </div>
-          <div class="modal-content">
             <div class="campaign-header">
-              <h5 data-copy="${campaign.cityName}">${campaign.cityName}</h5>
+              <div class="header-top">
+                <h5 data-copy="${campaign.cityName}">${campaign.cityName}</h5>
+                <div class="header-actions">
+                  <i class="bi bi-pencil-square edit-campaign-modal" data-id="${campaign.id}"></i>
+                  <i class="bi bi-trash delete-campaign-modal" data-id="${campaign.id}"></i>
+                </div>
+              </div>
               <p data-copy="${formatDate(campaign.startDate)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
               <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
             </div>
+            <hr />
             <div class="duplas-detail">
               ${campaign.duplas
                 .map(
@@ -628,11 +606,12 @@ import CreateCity from "../components/create_city.astro";
                 )
                 .join("")}
             </div>
+            <hr />
             <div class="campaign-status-switcher-modal">
               <button class="status-btn ${campaign.status === "pendiente" ? "active" : ""}" data-status="pendiente" data-id="${campaign.id}">PENDIENTE</button>
               <button class="status-btn ${campaign.status === "montada" ? "active" : ""}" data-status="montada" data-id="${campaign.id}">MONTADA</button>
             </div>
-          </div>
+
         </div>
       </div>
     `;
@@ -722,14 +701,16 @@ import CreateCity from "../components/create_city.astro";
     });
 
     // Botones de cambiar estado
-    $detailOverlay.querySelectorAll(".campaign-status-switcher-modal .status-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const id = parseInt(e.currentTarget.dataset.id);
-        const newStatus = e.currentTarget.dataset.status;
-        changeCampaignStatus(id, newStatus);
-        closeDetailModal();
+    $detailOverlay
+      .querySelectorAll(".campaign-status-switcher-modal .status-btn")
+      .forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const id = parseInt(e.currentTarget.dataset.id);
+          const newStatus = e.currentTarget.dataset.status;
+          changeCampaignStatus(id, newStatus);
+          closeDetailModal();
+        });
       });
-    });
   }
 
   // ============================================
