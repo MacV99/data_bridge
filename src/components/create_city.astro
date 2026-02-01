@@ -549,6 +549,11 @@
       startDate,
       phoneNumber,
       duplas,
+      status: editingCampaignId
+        ? JSON.parse(localStorage.getItem("campaigns") || "[]").find(
+            (c) => c.id === editingCampaignId,
+          )?.status || "pendiente"
+        : "pendiente",
       createdAt: editingCampaignId
         ? JSON.parse(localStorage.getItem("campaigns") || "[]").find(
             (c) => c.id === editingCampaignId,

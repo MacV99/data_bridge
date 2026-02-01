@@ -24,9 +24,34 @@ import CreateCity from "../components/create_city.astro";
 <style>
   #dashboard {
     padding: 30px;
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #pendiente,
+  #montada {
+    width: 100%;
+  }
+
+  #pendiente h2,
+  #montada h2 {
+    color: var(--clr-main);
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+  }
+
+  .campaigns-container {
+    display: flex;
     flex-wrap: wrap;
     gap: 20px;
     align-items: flex-start;
+  }
+
+  .empty-text {
+    color: var(--clr-gray);
+    padding: 20px;
   }
 
   .empty-state {
@@ -104,6 +129,17 @@ import CreateCity from "../components/create_city.astro";
 
   .campaign-header p:first-of-type {
     cursor: pointer;
+  }
+
+  .campaign-header.clickable {
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  @media (hover: hover) {
+    .campaign-header.clickable:hover {
+      opacity: 0.8;
+    }
   }
 
   .bloque {
@@ -184,6 +220,145 @@ import CreateCity from "../components/create_city.astro";
       color: var(--clr-main);
     }
   }
+
+  /* Modal de detalles de campaña */
+  .campaign-detail-modal {
+    background-color: var(--clr-dark);
+    border: solid 1px var(--clr-border);
+    width: 600px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    gap: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+    position: relative;
+  }
+
+  .campaign-detail-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: solid 1px var(--clr-border);
+    width: 100%;
+    position: relative;
+  }
+
+  .campaign-detail-modal .modal-header h3 {
+    color: var(--clr-main);
+    margin: 0;
+    font-size: 1.3rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    flex: 1;
+    text-align: center;
+  }
+
+  .modal-header-actions {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .modal-header-actions i {
+    background-color: var(--clr-dark2);
+    border: solid 1px var(--clr-border);
+    color: var(--clr-gray);
+    padding: 8px;
+    border-radius: 0;
+    transition: var(--transition);
+    cursor: pointer;
+  }
+
+  @media (hover: hover) {
+    .modal-header-actions i:hover {
+      color: var(--clr-main);
+      background-color: var(--clr-border);
+    }
+  }
+
+  .campaign-detail-modal .modal-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .campaign-detail-modal .campaign-header {
+    width: 100%;
+    gap: 5px;
+    padding-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-bottom: solid 1px var(--clr-border);
+  }
+
+  .campaign-detail-modal .campaign-header h5 {
+    color: var(--clr-main);
+    font-size: 1.1rem;
+    cursor: copy;
+    margin: 0;
+  }
+
+  .campaign-detail-modal .campaign-header p {
+    font-size: 0.85rem;
+    color: var(--clr-gray);
+    display: flex;
+    gap: 7px;
+    margin: 0;
+    cursor: copy;
+  }
+
+  .campaign-detail-modal p {
+    color: var(--clr-text);
+    margin: 0;
+  }
+
+  .campaign-detail-modal .duplas-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .campaign-status-switcher-modal {
+    width: 100%;
+    display: flex;
+    gap: 5px;
+    padding-top: 15px;
+    border-top: solid 1px var(--clr-border);
+    margin-top: 15px;
+  }
+
+  .status-btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    border: solid 1px var(--clr-border);
+    background-color: var(--clr-dark);
+    color: var(--clr-gray);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .status-btn.active {
+    background-color: var(--clr-main);
+    color: var(--clr-dark);
+    border-color: var(--clr-main);
+  }
+
+  @media (hover: hover) {
+    .status-btn:hover {
+      background-color: var(--clr-border);
+    }
+
+    .status-btn.active:hover {
+      background-color: var(--clr-main);
+    }
+  }
 </style>
 
 <script>
@@ -226,47 +401,43 @@ import CreateCity from "../components/create_city.astro";
       return;
     }
 
-    // Renderizar campañas
-    $dashboard.innerHTML = campaigns
-      .map(
-        (campaign) => `
-      <div class="campaign-card" data-id="${campaign.id}">
-        <i class="bi bi-pencil-square edit-campaign" data-id="${campaign.id}"></i>
-        <i class="bi bi-trash delete-campaign" data-id="${campaign.id}"></i>
-        <div class="campaign-header">
-          <h5 data-copy="${campaign.cityName}">${campaign.cityName}</h5>
-          <p data-copy="${formatDate(campaign.startDate)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
-          <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
-        </div>
-        ${campaign.duplas
-          .map(
-            (dupla, index) => `
-          <div class="bloque">
-            <h6>DUPLA #${index + 1}: ${dupla.name}</h6>
-            <div class="bloque-content">
-              <div class="bloque-item">
-                <img src="${dupla.image}" alt="Imagen ${dupla.name}" />
-                <button class="boton download-img" data-img="${dupla.image}" data-name="${getImageFileName(campaign.cityName, index)}">
-                  <i class="bi bi-download"></i>
-                </button>
-              </div>
-              <div class="bloque-item">
-                <p>${escapeHtml(dupla.text)}</p>
-                <button class="boton copy-text" data-text="${escapeHtml(dupla.text)}">
-                  <i class="bi bi-clipboard"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        `,
-          )
-          .join("")}
+    // Separar campañas por estado
+    const pendientes = campaigns.filter((c) => c.status === "pendiente");
+    const montadas = campaigns.filter((c) => c.status === "montada");
+
+    // Renderizar secciones
+    const $pendienteDiv = document.getElementById("pendiente");
+    const $montadaDiv = document.getElementById("montada");
+
+    $pendienteDiv.innerHTML = `
+      <h2>PENDIENTES</h2>
+      <div class="campaigns-container">
+        ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ''}
+        ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
       </div>
-    `,
-      )
-      .join("");
+    `;
+
+    $montadaDiv.innerHTML = `
+      <h2>MONTADAS</h2>
+      <div class="campaigns-container">
+        ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ''}
+        ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
+      </div>
+    `;
 
     addEventListeners();
+  }
+
+  function renderCampaignCard(campaign) {
+    return `
+      <div class="campaign-card" data-id="${campaign.id}" data-status="${campaign.status}">
+        <div class="campaign-header clickable">
+          <h5>${campaign.cityName}</h5>
+          <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
+          <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
+        </div>
+      </div>
+    `;
   }
 
   // ============================================
@@ -276,9 +447,10 @@ import CreateCity from "../components/create_city.astro";
   function addEventListeners() {
     addCopyTextListener();
     addCopyClickListener();
-    addDownloadImageListener();
     addDeleteCampaignListener();
     addEditCampaignListener();
+    addStatusChangeListener();
+    addCardClickListener();
   }
 
   function addCopyTextListener() {
@@ -360,6 +532,31 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
+  function addStatusChangeListener() {
+    document.querySelectorAll(".status-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = parseInt(e.currentTarget.dataset.id);
+        const newStatus = e.currentTarget.dataset.status;
+        changeCampaignStatus(id, newStatus);
+      });
+    });
+  }
+
+  function addCardClickListener() {
+    document.querySelectorAll(".campaign-header.clickable").forEach((header) => {
+      header.addEventListener("click", (e) => {
+        const card = e.currentTarget.closest(".campaign-card");
+        const id = parseInt(card.dataset.id);
+        const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+        const campaign = campaigns.find((c) => c.id === id);
+        if (campaign) {
+          openCampaignModal(campaign);
+        }
+      });
+    });
+  }
+
   // ============================================
   // FUNCIONES - ACCIONES
   // ============================================
@@ -376,6 +573,163 @@ import CreateCity from "../components/create_city.astro";
     campaigns = campaigns.filter((c) => c.id !== id);
     localStorage.setItem("campaigns", JSON.stringify(campaigns));
     renderCampaigns();
+  }
+
+  function changeCampaignStatus(id, newStatus) {
+    let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    const campaign = campaigns.find((c) => c.id === id);
+    if (campaign) {
+      campaign.status = newStatus;
+      localStorage.setItem("campaigns", JSON.stringify(campaigns));
+      renderCampaigns();
+    }
+  }
+
+  function openCampaignModal(campaign) {
+    const modalHtml = `
+      <div class="modal-overlay" id="campaign-detail-overlay" style="display: flex;">
+        <div class="campaign-detail-modal flex-column">
+          <div class="modal-header">
+            <h3 data-copy-modal="${campaign.cityName}">${campaign.cityName}</h3>
+            <div class="modal-header-actions">
+              <i class="bi bi-pencil-square edit-campaign-modal" data-id="${campaign.id}" style="cursor: pointer; font-size: 20px; margin-right: 10px;"></i>
+              <i class="bi bi-trash delete-campaign-modal" data-id="${campaign.id}" style="cursor: pointer; font-size: 20px; margin-right: 10px;"></i>
+              <i class="bi bi-x-lg close-campaign-modal" style="cursor: pointer; font-size: 20px;"></i>
+            </div>
+          </div>
+          <div class="modal-content">
+            <div class="campaign-header">
+              <h5 data-copy="${campaign.cityName}">${campaign.cityName}</h5>
+              <p data-copy="${formatDate(campaign.startDate)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
+              <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
+            </div>
+            <div class="duplas-detail">
+              ${campaign.duplas
+                .map(
+                  (dupla, index) => `
+                <div class="bloque">
+                  <h6>DUPLA #${index + 1}: ${dupla.name}</h6>
+                  <div class="bloque-content">
+                    <div class="bloque-item">
+                      <img src="${dupla.image}" alt="Imagen ${dupla.name}" />
+                      <button class="boton download-img" data-img="${dupla.image}" data-name="${getImageFileName(campaign.cityName, index)}">
+                        <i class="bi bi-download"></i>
+                      </button>
+                    </div>
+                    <div class="bloque-item">
+                      <p>${escapeHtml(dupla.text)}</p>
+                      <button class="boton copy-text" data-text="${escapeHtml(dupla.text)}">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `,
+                )
+                .join("")}
+            </div>
+            <div class="campaign-status-switcher-modal">
+              <button class="status-btn ${campaign.status === "pendiente" ? "active" : ""}" data-status="pendiente" data-id="${campaign.id}">PENDIENTE</button>
+              <button class="status-btn ${campaign.status === "montada" ? "active" : ""}" data-status="montada" data-id="${campaign.id}">MONTADA</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const modalDiv = document.createElement("div");
+    modalDiv.innerHTML = modalHtml;
+    document.body.appendChild(modalDiv.firstElementChild);
+
+    const $detailOverlay = document.getElementById("campaign-detail-overlay");
+    const $closeBtn = $detailOverlay.querySelector(".close-campaign-modal");
+    const $editBtn = $detailOverlay.querySelector(".edit-campaign-modal");
+    const $deleteBtn = $detailOverlay.querySelector(".delete-campaign-modal");
+
+    const closeDetailModal = () => {
+      $detailOverlay.remove();
+    };
+
+    $closeBtn.addEventListener("click", closeDetailModal);
+    $detailOverlay.addEventListener("click", (e) => {
+      if (e.target === $detailOverlay) closeDetailModal();
+    });
+
+    // Botones de editar y eliminar
+    $editBtn.addEventListener("click", (e) => {
+      const id = parseInt(e.currentTarget.dataset.id);
+      const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+      const campaignToEdit = campaigns.find((c) => c.id === id);
+      if (campaignToEdit) {
+        window.dispatchEvent(
+          new CustomEvent("editCampaign", { detail: campaignToEdit }),
+        );
+        closeDetailModal();
+      }
+    });
+
+    $deleteBtn.addEventListener("click", (e) => {
+      const id = parseInt(e.currentTarget.dataset.id);
+      const $confirmOverlay = document.getElementById("modal-confirm-overlay");
+      const $confirmMessage = document.getElementById("confirm-message");
+      const $confirmYes = document.querySelector(".confirm-yes");
+
+      $confirmMessage.textContent = "¿Estás seguro de eliminar esta campaña?";
+      $confirmOverlay.style.display = "flex";
+
+      const handleConfirm = () => {
+        deleteCampaign(id);
+        closeDetailModal();
+        $confirmOverlay.style.display = "none";
+        $confirmYes.removeEventListener("click", handleConfirm);
+      };
+
+      $confirmYes.addEventListener("click", handleConfirm);
+    });
+
+    // Agregar listeners a botones dentro del modal
+    $detailOverlay.querySelectorAll("[data-copy]").forEach((element) => {
+      element.addEventListener("click", (e) => {
+        const text = e.currentTarget.dataset.copy;
+        navigator.clipboard.writeText(text).then(() => {
+          e.currentTarget.style.opacity = "0.7";
+          setTimeout(() => {
+            e.currentTarget.style.opacity = "1";
+          }, 500);
+        });
+      });
+    });
+
+    $detailOverlay.querySelectorAll(".copy-text").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const text = e.currentTarget.dataset.text;
+        navigator.clipboard.writeText(text).then(() => {
+          const originalText = e.currentTarget.innerHTML;
+          e.currentTarget.innerHTML = '<i class="bi bi-check"></i> Copiado!';
+          setTimeout(() => {
+            e.currentTarget.innerHTML = originalText;
+          }, 1500);
+        });
+      });
+    });
+
+    $detailOverlay.querySelectorAll(".download-img").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const imgData = e.currentTarget.dataset.img;
+        const fileName = e.currentTarget.dataset.name;
+        downloadImage(imgData, fileName);
+      });
+    });
+
+    // Botones de cambiar estado
+    $detailOverlay.querySelectorAll(".campaign-status-switcher-modal .status-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const id = parseInt(e.currentTarget.dataset.id);
+        const newStatus = e.currentTarget.dataset.status;
+        changeCampaignStatus(id, newStatus);
+        closeDetailModal();
+      });
+    });
   }
 
   // ============================================
