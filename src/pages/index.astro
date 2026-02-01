@@ -10,17 +10,13 @@ import CreateCity from "../components/create_city.astro";
   <section id="dashboard" class="flex-row">
     <div id="pendiente" class="flex-column">
       <h2>PENDIENTES</h2>
-      <div></div>
     </div>
     <div id="montada" class="flex-column">
       <h2>MONTADAS</h2>
-      <div></div>
     </div>
-    <!-- Las campañas se renderizan dinámicamente aquí -->
   </section>
 </Layout1>
 
-<!-- Estilos del dashboard -->
 <style>
   #dashboard {
     display: flex;
@@ -73,12 +69,7 @@ import CreateCity from "../components/create_city.astro";
   }
 </style>
 
-<!-- Estilos dinámicos de campañas y bloques -->
 <style is:inline>
-  /* ============================================
-     CAMPAÑA CONTAINER Y CARDS
-     ============================================ */
-
   .campaigns-container {
     width: 100%;
     max-width: 500px;
@@ -135,10 +126,6 @@ import CreateCity from "../components/create_city.astro";
     }
   }
 
-  /* ============================================
-     BLOQUES - MODAL DETAILS
-     ============================================ */
-
   .bloque {
     padding: 5px;
     width: 100%;
@@ -169,7 +156,7 @@ import CreateCity from "../components/create_city.astro";
     flex: 1;
     background-color: var(--clr-dark);
     padding: 0px;
-    gap: 8px;
+    gap: 4px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -212,10 +199,6 @@ import CreateCity from "../components/create_city.astro";
     align-items: center;
     justify-content: center;
   }
-
-  /* ============================================
-     MODAL - DETALLES DE CAMPAÑA
-     ============================================ */
 
   .campaign-detail-modal {
     background-color: var(--clr-dark);
@@ -293,10 +276,6 @@ import CreateCity from "../components/create_city.astro";
     gap: 10px;
   }
 
-  /* ============================================
-     STATUS SWITCHER
-     ============================================ */
-
   .campaign-status-switcher-modal {
     width: 100%;
     display: flex;
@@ -337,20 +316,10 @@ import CreateCity from "../components/create_city.astro";
 <script>
   //@ts-nocheck
 
-  /* ============================================
-     REFERENCIAS DOM
-     ============================================ */
   const $dashboard = document.getElementById("dashboard");
 
-  /* ============================================
-     INICIALIZACIÓN
-     ============================================ */
   document.addEventListener("DOMContentLoaded", renderCampaigns);
   window.addEventListener("campaignAdded", renderCampaigns);
-
-  /* ============================================
-     RENDERIZADO
-     ============================================ */
 
   /**
    * Renderiza todas las campañas separadas por estado
@@ -409,10 +378,6 @@ import CreateCity from "../components/create_city.astro";
     `;
   }
 
-  /* ============================================
-     EVENT LISTENERS
-     ============================================ */
-
   /**
    * Agrega todos los event listeners dinámicos
    */
@@ -456,10 +421,6 @@ import CreateCity from "../components/create_city.astro";
         });
       });
   }
-
-  /* ============================================
-     ACCIONES
-     ============================================ */
 
   /**
    * Descarga una imagen desde datos base64
@@ -645,10 +606,6 @@ import CreateCity from "../components/create_city.astro";
         });
       });
   }
-
-  /* ============================================
-     UTILIDADES
-     ============================================ */
 
   /**
    * Formatea una fecha de YYYY-MM-DD a DD/MM/YYYY
