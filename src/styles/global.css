@@ -217,6 +217,11 @@ input[type="file"] {
   cursor: pointer;
 }
 
+/* Selecciona el icono del calendario */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
 
 /* ============================================
   COMPONENTES - MODAL
