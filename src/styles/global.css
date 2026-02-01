@@ -46,13 +46,16 @@ body {
   flex-direction: column;
   background-color: var(--clr-dark);
   color: var(--clr-white);
+  overflow: hidden;
 }
 
 main {
   width: 100%;
+  height: 100dvh;
   display: flex;
   align-items: center;
   flex-direction: column;
+  overflow: hidden;
 }
 
 li,
@@ -161,12 +164,25 @@ button,
   align-items: center;
   justify-content: center;
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .boton2 {
   border-color: transparent;
   text-decoration: underline;
   color: var(--clr-text);
+}
+
+@media (hover: hover) {
+
+  button:hover,
+  .boton:hover {
+    background-color: var(--clr-border);
+  }
+
+  .boton2:hover {
+    background-color: var(--clr-dark2);
+  }
 }
 
 
@@ -195,8 +211,7 @@ select:focus {
 
 select {
   cursor: pointer;
-  border: solid 1px var(--clr-border);
-  background-color: var(--clr-dark1);
+  background-color: var(--clr-dark2);
 }
 
 select option {
@@ -217,7 +232,6 @@ input[type="file"] {
   cursor: pointer;
 }
 
-/* Selecciona el icono del calendario */
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.8);
 }
@@ -225,7 +239,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ============================================
   COMPONENTES - MODAL
-   ============================================ */
+============================================ */
 
 .modal-overlay {
   display: none;
@@ -236,25 +250,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 10;
+  z-index: 100;
   background-color: #000000c5;
   backdrop-filter: blur(10px);
-}
-
-
-/* ============================================
-  ESTADOS INTERACTIVOS - HOVER
-   ============================================ */
-
-@media (hover: hover) {
-
-  button:hover,
-  .boton:hover {
-    background-color: var(--clr-border);
-    cursor: pointer;
-  }
-
-  .boton2:hover {
-    background-color: var(--clr-dark2);
-  }
 }

@@ -8,11 +8,11 @@ import CreateCity from "../components/create_city.astro";
   <Header />
   <CreateCity />
   <section id="dashboard" class="flex-row">
-    <div id="pendiente">
+    <div id="pendiente" class="flex-column">
       <h2>PENDIENTES</h2>
       <div></div>
     </div>
-    <div id="montada">
+    <div id="montada" class="flex-column">
       <h2>MONTADAS</h2>
       <div></div>
     </div>
@@ -23,16 +23,25 @@ import CreateCity from "../components/create_city.astro";
 <!-- Estilos del dashboard -->
 <style>
   #dashboard {
-    padding: 30px;
-    gap: 20px;
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
+    gap: 0px;
+    padding: 10px;
+    max-width: 1100px;
+    height: 100%;
+    overflow: hidden;
   }
 
   #pendiente,
   #montada {
     width: 100%;
+    height: 100%;
+    text-align: center;
+    padding: 20px;
+    gap: 10px;
+    justify-content: flex-start;
+    overflow: hidden;
+    flex-direction: column;
   }
 
   #pendiente h2,
@@ -40,13 +49,7 @@ import CreateCity from "../components/create_city.astro";
     color: var(--clr-main);
     margin-bottom: 15px;
     font-size: 1.3rem;
-  }
-
-  .campaigns-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    align-items: flex-start;
+    flex-shrink: 0;
   }
 
   .empty-text {
@@ -72,36 +75,30 @@ import CreateCity from "../components/create_city.astro";
 
 <!-- Estilos dinámicos de campañas y bloques -->
 <style is:inline>
+  /* ============================================
+     CAMPAÑA CONTAINER Y CARDS
+     ============================================ */
+
+  .campaigns-container {
+    width: 100%;
+    max-width: 500px;
+    gap: 10px;
+    justify-content: flex-start;
+    overflow-y: auto;
+    height: 100%;
+    flex: 1;
+  }
+
   .campaign-card {
     background-color: var(--clr-dark2);
-    padding: 15px 15px;
-    width: 450px;
-    max-width: 100%;
+    padding: 10px 15px;
+    width: 100%;
     gap: 5px;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     border: solid 1px var(--clr-border);
     text-align: left;
-  }
-
-  .campaign-card .delete-campaign,
-  .campaign-card .edit-campaign {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background-color: var(--clr-dark);
-    border: solid 1px var(--clr-border);
-    color: var(--clr-gray);
-    cursor: pointer;
-    font-size: 20px;
-    padding: 9px;
-    transition: var(--transition);
-  }
-
-  .campaign-card .edit-campaign {
-    right: 57px;
+    height: auto;
+    flex-shrink: 0;
   }
 
   .campaign-header {
@@ -116,8 +113,7 @@ import CreateCity from "../components/create_city.astro";
   .campaign-header h5 {
     color: var(--clr-main);
     font-size: 1.1rem;
-    cursor: pointer;
-    padding-left: 0;
+    margin: 0;
   }
 
   .campaign-header p {
@@ -125,10 +121,7 @@ import CreateCity from "../components/create_city.astro";
     color: var(--clr-text);
     display: flex;
     gap: 7px;
-  }
-
-  .campaign-header p:first-of-type {
-    cursor: pointer;
+    margin: 0;
   }
 
   .campaign-header.clickable {
@@ -142,6 +135,10 @@ import CreateCity from "../components/create_city.astro";
     }
   }
 
+  /* ============================================
+     BLOQUES - MODAL DETAILS
+     ============================================ */
+
   .bloque {
     padding: 5px;
     width: 100%;
@@ -152,12 +149,13 @@ import CreateCity from "../components/create_city.astro";
     align-items: center;
   }
 
-  .bloque > h6 {
+  .bloque h6 {
     width: 100%;
     color: var(--clr-main);
     font-size: 0.8rem;
     text-align: left;
     font-weight: 600;
+    margin: 0;
   }
 
   .bloque-content {
@@ -195,6 +193,7 @@ import CreateCity from "../components/create_city.astro";
     width: 192px;
     overflow: hidden;
     overflow-wrap: break-word;
+    margin: 0;
   }
 
   .bloque-item button {
@@ -214,14 +213,10 @@ import CreateCity from "../components/create_city.astro";
     justify-content: center;
   }
 
-  @media (hover: hover) {
-    .campaign-card .delete-campaign:hover,
-    .campaign-card .edit-campaign:hover {
-      color: var(--clr-main);
-    }
-  }
+  /* ============================================
+     MODAL - DETALLES DE CAMPAÑA
+     ============================================ */
 
-  /* Modal de detalles de campaña */
   .campaign-detail-modal {
     background-color: var(--clr-dark);
     border: solid 1px var(--clr-border);
@@ -229,12 +224,12 @@ import CreateCity from "../components/create_city.astro";
     max-width: 90%;
     max-height: 85vh;
     overflow-y: auto;
-    justify-content: flex-start;
     padding: 15px 20px;
     scroll-behavior: smooth;
     position: relative;
     display: flex;
     flex-direction: column;
+    gap: 10px;
   }
 
   .campaign-detail-modal .campaign-header {
@@ -255,7 +250,7 @@ import CreateCity from "../components/create_city.astro";
   .campaign-detail-modal .campaign-header h5 {
     color: var(--clr-main);
     font-size: 1.1rem;
-    cursor: copy;
+    cursor: pointer;
     margin: 0;
   }
 
@@ -286,18 +281,21 @@ import CreateCity from "../components/create_city.astro";
     display: flex;
     gap: 7px;
     margin: 0;
-    cursor: copy;
   }
 
-  .campaign-detail-modal p {
-    color: var(--clr-text);
-    margin: 0;
+  .campaign-detail-modal .campaign-header p:first-of-type {
+    cursor: pointer;
   }
 
   .campaign-detail-modal .duplas-detail {
     display: flex;
     flex-direction: column;
+    gap: 10px;
   }
+
+  /* ============================================
+     STATUS SWITCHER
+     ============================================ */
 
   .campaign-status-switcher-modal {
     width: 100%;
@@ -339,32 +337,27 @@ import CreateCity from "../components/create_city.astro";
 <script>
   //@ts-nocheck
 
-  // ============================================
-  // REFERENCIAS DOM
-  // ============================================
-
+  /* ============================================
+     REFERENCIAS DOM
+     ============================================ */
   const $dashboard = document.getElementById("dashboard");
 
-  // ============================================
-  // EVENT LISTENERS
-  // ============================================
+  /* ============================================
+     INICIALIZACIÓN
+     ============================================ */
+  document.addEventListener("DOMContentLoaded", renderCampaigns);
+  window.addEventListener("campaignAdded", renderCampaigns);
 
-  document.addEventListener("DOMContentLoaded", () => {
-    renderCampaigns();
-  });
+  /* ============================================
+     RENDERIZADO
+     ============================================ */
 
-  window.addEventListener("campaignAdded", () => {
-    renderCampaigns();
-  });
-
-  // ============================================
-  // FUNCIONES - RENDERIZADO
-  // ============================================
-
+  /**
+   * Renderiza todas las campañas separadas por estado
+   */
   function renderCampaigns() {
     const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
 
-    // Estado vacío
     if (campaigns.length === 0) {
       $dashboard.innerHTML = `
         <div class="empty-state flex-column">
@@ -376,17 +369,15 @@ import CreateCity from "../components/create_city.astro";
       return;
     }
 
-    // Separar campañas por estado
     const pendientes = campaigns.filter((c) => c.status === "pendiente");
     const montadas = campaigns.filter((c) => c.status === "montada");
 
-    // Renderizar secciones
     const $pendienteDiv = document.getElementById("pendiente");
     const $montadaDiv = document.getElementById("montada");
 
     $pendienteDiv.innerHTML = `
       <h2>PENDIENTES</h2>
-      <div class="campaigns-container">
+      <div class="campaigns-container flex-column">
         ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ""}
         ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
       </div>
@@ -394,7 +385,7 @@ import CreateCity from "../components/create_city.astro";
 
     $montadaDiv.innerHTML = `
       <h2>MONTADAS</h2>
-      <div class="campaigns-container">
+      <div class="campaigns-container flex-column">
         ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ""}
         ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
       </div>
@@ -403,9 +394,12 @@ import CreateCity from "../components/create_city.astro";
     addEventListeners();
   }
 
+  /**
+   * Renderiza una tarjeta de campaña
+   */
   function renderCampaignCard(campaign) {
     return `
-      <div class="campaign-card" data-id="${campaign.id}" data-status="${campaign.status}">
+      <div class="campaign-card flex-column" data-id="${campaign.id}" data-status="${campaign.status}">
         <div class="campaign-header clickable">
           <h5>${campaign.cityName}</h5>
           <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
@@ -415,34 +409,21 @@ import CreateCity from "../components/create_city.astro";
     `;
   }
 
-  // ============================================
-  // FUNCIONES - EVENT LISTENERS DINÁMICOS
-  // ============================================
+  /* ============================================
+     EVENT LISTENERS
+     ============================================ */
 
+  /**
+   * Agrega todos los event listeners dinámicos
+   */
   function addEventListeners() {
-    addCopyTextListener();
     addCopyClickListener();
-    addDeleteCampaignListener();
-    addEditCampaignListener();
-    addStatusChangeListener();
     addCardClickListener();
   }
 
-  function addCopyTextListener() {
-    document.querySelectorAll(".copy-text").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const text = e.currentTarget.dataset.text;
-        navigator.clipboard.writeText(text).then(() => {
-          const originalText = e.currentTarget.innerHTML;
-          e.currentTarget.innerHTML = '<i class="bi bi-check"></i> Copiado!';
-          setTimeout(() => {
-            e.currentTarget.innerHTML = originalText;
-          }, 1500);
-        });
-      });
-    });
-  }
-
+  /**
+   * Permite copiar texto al hacer click en elementos con [data-copy]
+   */
   function addCopyClickListener() {
     document.querySelectorAll("[data-copy]").forEach((element) => {
       element.addEventListener("click", (e) => {
@@ -457,67 +438,9 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  function addDownloadImageListener() {
-    document.querySelectorAll(".download-img").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const imgData = e.currentTarget.dataset.img;
-        const fileName = e.currentTarget.dataset.name;
-        downloadImage(imgData, fileName);
-      });
-    });
-  }
-
-  function addDeleteCampaignListener() {
-    document.querySelectorAll(".delete-campaign").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const id = parseInt(e.currentTarget.dataset.id);
-        const $confirmOverlay = document.getElementById(
-          "modal-confirm-overlay",
-        );
-        const $confirmMessage = document.getElementById("confirm-message");
-        const $confirmYes = document.querySelector(".confirm-yes");
-
-        $confirmMessage.textContent = "¿Estás seguro de eliminar esta campaña?";
-        $confirmOverlay.style.display = "flex";
-
-        const handleConfirm = () => {
-          deleteCampaign(id);
-          $confirmOverlay.style.display = "none";
-          $confirmYes.removeEventListener("click", handleConfirm);
-        };
-
-        $confirmYes.addEventListener("click", handleConfirm);
-      });
-    });
-  }
-
-  function addEditCampaignListener() {
-    document.querySelectorAll(".edit-campaign").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const id = parseInt(e.currentTarget.dataset.id);
-        const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
-        const campaign = campaigns.find((c) => c.id === id);
-
-        if (campaign) {
-          window.dispatchEvent(
-            new CustomEvent("editCampaign", { detail: campaign }),
-          );
-        }
-      });
-    });
-  }
-
-  function addStatusChangeListener() {
-    document.querySelectorAll(".status-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const id = parseInt(e.currentTarget.dataset.id);
-        const newStatus = e.currentTarget.dataset.status;
-        changeCampaignStatus(id, newStatus);
-      });
-    });
-  }
-
+  /**
+   * Abre el modal de detalles al hacer click en la tarjeta
+   */
   function addCardClickListener() {
     document
       .querySelectorAll(".campaign-header.clickable")
@@ -529,17 +452,18 @@ import CreateCity from "../components/create_city.astro";
             localStorage.getItem("campaigns") || "[]",
           );
           const campaign = campaigns.find((c) => c.id === id);
-          if (campaign) {
-            openCampaignModal(campaign);
-          }
+          if (campaign) openCampaignModal(campaign);
         });
       });
   }
 
-  // ============================================
-  // FUNCIONES - ACCIONES
-  // ============================================
+  /* ============================================
+     ACCIONES
+     ============================================ */
 
+  /**
+   * Descarga una imagen desde datos base64
+   */
   function downloadImage(dataUrl, fileName) {
     const link = document.createElement("a");
     link.href = dataUrl;
@@ -547,6 +471,9 @@ import CreateCity from "../components/create_city.astro";
     link.click();
   }
 
+  /**
+   * Elimina una campaña del localStorage
+   */
   function deleteCampaign(id) {
     let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
     campaigns = campaigns.filter((c) => c.id !== id);
@@ -554,6 +481,9 @@ import CreateCity from "../components/create_city.astro";
     renderCampaigns();
   }
 
+  /**
+   * Cambia el estado de una campaña
+   */
   function changeCampaignStatus(id, newStatus) {
     let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
     const campaign = campaigns.find((c) => c.id === id);
@@ -564,54 +494,56 @@ import CreateCity from "../components/create_city.astro";
     }
   }
 
+  /**
+   * Abre modal con detalles completos de una campaña
+   */
   function openCampaignModal(campaign) {
     const modalHtml = `
-      <div class="modal-overlay" id="campaign-detail-overlay" style="display: flex;">
+      <div class="modal-overlay" id="campaign-detail-overlay" style="display: flex; z-index: 50;">
         <i class="bi bi-x-lg close-campaign-modal" style="position: fixed; top: 20px; right: 20px; cursor: pointer; font-size: 20px; background-color: var(--clr-dark); border: solid 1px var(--clr-border); padding: 7px; z-index: 100;"></i>
         <div class="campaign-detail-modal flex-column">
-            <div class="campaign-header">
-              <div class="header-top">
-                <h5 data-copy="${campaign.cityName}">${campaign.cityName}</h5>
-                <div class="header-actions">
-                  <i class="bi bi-pencil-square edit-campaign-modal" data-id="${campaign.id}"></i>
-                  <i class="bi bi-trash delete-campaign-modal" data-id="${campaign.id}"></i>
-                </div>
+          <div class="campaign-header">
+            <div class="header-top">
+              <h5 data-copy="${campaign.cityName}">${campaign.cityName}</h5>
+              <div class="header-actions">
+                <i class="bi bi-pencil-square edit-campaign-modal" data-id="${campaign.id}"></i>
+                <i class="bi bi-trash delete-campaign-modal" data-id="${campaign.id}"></i>
               </div>
-              <p data-copy="${formatDate(campaign.startDate)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
-              <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
             </div>
-            <hr />
-            <div class="duplas-detail">
-              ${campaign.duplas
-                .map(
-                  (dupla, index) => `
-                <div class="bloque">
-                  <h6>DUPLA #${index + 1}: ${dupla.name}</h6>
-                  <div class="bloque-content">
-                    <div class="bloque-item">
-                      <img src="${dupla.image}" alt="Imagen ${dupla.name}" />
-                      <button class="boton download-img" data-img="${dupla.image}" data-name="${getImageFileName(campaign.cityName, index)}">
-                        <i class="bi bi-download"></i>
-                      </button>
-                    </div>
-                    <div class="bloque-item">
-                      <p>${escapeHtml(dupla.text)}</p>
-                      <button class="boton copy-text" data-text="${escapeHtml(dupla.text)}">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
+            <p data-copy="${formatDate(campaign.startDate)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
+            <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
+          </div>
+          <hr />
+          <div class="duplas-detail">
+            ${campaign.duplas
+              .map(
+                (dupla, index) => `
+              <div class="bloque">
+                <h6>DUPLA #${index + 1}: ${dupla.name}</h6>
+                <div class="bloque-content">
+                  <div class="bloque-item">
+                    <img src="${dupla.image}" alt="Imagen ${dupla.name}" />
+                    <button class="boton download-img" data-img="${dupla.image}" data-name="${getImageFileName(campaign.cityName, index)}">
+                      <i class="bi bi-download"></i>
+                    </button>
+                  </div>
+                  <div class="bloque-item">
+                    <p>${escapeHtml(dupla.text)}</p>
+                    <button class="boton copy-text" data-text="${escapeHtml(dupla.text)}">
+                      <i class="bi bi-clipboard"></i>
+                    </button>
                   </div>
                 </div>
-              `,
-                )
-                .join("")}
-            </div>
-            <hr />
-            <div class="campaign-status-switcher-modal">
-              <button class="status-btn ${campaign.status === "pendiente" ? "active" : ""}" data-status="pendiente" data-id="${campaign.id}">PENDIENTE</button>
-              <button class="status-btn ${campaign.status === "montada" ? "active" : ""}" data-status="montada" data-id="${campaign.id}">MONTADA</button>
-            </div>
-
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+          <hr />
+          <div class="campaign-status-switcher-modal">
+            <button class="status-btn ${campaign.status === "pendiente" ? "active" : ""}" data-status="pendiente" data-id="${campaign.id}">PENDIENTE</button>
+            <button class="status-btn ${campaign.status === "montada" ? "active" : ""}" data-status="montada" data-id="${campaign.id}">MONTADA</button>
+          </div>
         </div>
       </div>
     `;
@@ -629,12 +561,13 @@ import CreateCity from "../components/create_city.astro";
       $detailOverlay.remove();
     };
 
+    // Cerrar modal
     $closeBtn.addEventListener("click", closeDetailModal);
     $detailOverlay.addEventListener("click", (e) => {
       if (e.target === $detailOverlay) closeDetailModal();
     });
 
-    // Botones de editar y eliminar
+    // Editar campaña
     $editBtn.addEventListener("click", (e) => {
       const id = parseInt(e.currentTarget.dataset.id);
       const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
@@ -647,6 +580,7 @@ import CreateCity from "../components/create_city.astro";
       }
     });
 
+    // Eliminar campaña
     $deleteBtn.addEventListener("click", (e) => {
       const id = parseInt(e.currentTarget.dataset.id);
       const $confirmOverlay = document.getElementById("modal-confirm-overlay");
@@ -666,7 +600,7 @@ import CreateCity from "../components/create_city.astro";
       $confirmYes.addEventListener("click", handleConfirm);
     });
 
-    // Agregar listeners a botones dentro del modal
+    // Botones dentro del modal
     $detailOverlay.querySelectorAll("[data-copy]").forEach((element) => {
       element.addEventListener("click", (e) => {
         const text = e.currentTarget.dataset.copy;
@@ -700,7 +634,6 @@ import CreateCity from "../components/create_city.astro";
       });
     });
 
-    // Botones de cambiar estado
     $detailOverlay
       .querySelectorAll(".campaign-status-switcher-modal .status-btn")
       .forEach((btn) => {
@@ -713,20 +646,29 @@ import CreateCity from "../components/create_city.astro";
       });
   }
 
-  // ============================================
-  // FUNCIONES - UTILIDADES
-  // ============================================
+  /* ============================================
+     UTILIDADES
+     ============================================ */
 
+  /**
+   * Formatea una fecha de YYYY-MM-DD a DD/MM/YYYY
+   */
   function formatDate(dateString) {
     const [year, month, day] = dateString.split("-");
     return `${day}/${month}/${year}`;
   }
 
+  /**
+   * Genera nombre de archivo para descargas
+   */
   function getImageFileName(cityName, duplaIndex) {
     const suffix = duplaIndex === 0 ? "1" : "5";
     return `${cityName}${suffix}`;
   }
 
+  /**
+   * Escapa caracteres especiales de HTML
+   */
   function escapeHtml(text) {
     return text
       .replace(/&/g, "&amp;")
