@@ -1,13 +1,21 @@
 ---
 import Layout1 from "../layouts/Layout1.astro";
 import Header from "../sections/header.astro";
-import AddCity from "../components/create_city.astro";
+import CreateCity from "../components/create_city.astro";
 ---
 
 <Layout1 title="Dashboard">
   <Header />
-  <AddCity />
+  <CreateCity />
   <section id="dashboard" class="flex-row">
+    <div id="pendiente">
+      <h2>PENDIENTES</h2>
+      <div></div>
+    </div>
+    <div id="montada">
+      <h2>MONTADAS</h2>
+      <div></div>
+    </div>
     <!-- Las campañas se renderizan dinámicamente aquí -->
   </section>
 </Layout1>
@@ -74,7 +82,7 @@ import AddCity from "../components/create_city.astro";
   .campaign-header {
     width: 100%;
     gap: 5px;
-    padding-bottom: 15px;
+    padding-bottom: 5px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
