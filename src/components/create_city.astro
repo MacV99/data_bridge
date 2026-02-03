@@ -239,10 +239,7 @@
 <script>
   //@ts-nocheck
 
-  // ============================================
   // CONSTANTES Y REFERENCIAS DOM
-  // ============================================
-
   const DUPLA_NAMES = ["INFO", "LUGAR"];
 
   const $closeModal = document.querySelector("#modal-add-city .close");
@@ -268,9 +265,9 @@
   let editingCampaignId = null;
   let confirmCallback = null;
 
-  // ============================================
+  
   // EVENT LISTENERS
-  // ============================================
+  
 
   $closeModal?.addEventListener("click", closeModal);
   $cancelButton?.addEventListener("click", closeModal);
@@ -302,9 +299,9 @@
   $confirmNo?.addEventListener("click", closeConfirmModal);
   $alertOk?.addEventListener("click", closeAlertModal);
 
-  // ============================================
+  
   // FUNCIONES - MODAL PRINCIPAL
-  // ============================================
+  
 
   function closeModal() {
     $modalOverlay.style.display = "none";
@@ -320,10 +317,8 @@
     createDuplas();
   }
 
-  // ============================================
-  // FUNCIONES - MODAL DE CONFIRMACIÓN
-  // ============================================
 
+  // FUNCIONES - MODAL DE CONFIRMACIÓN
   function showConfirmModal(message, callback) {
     $confirmMessage.textContent = message;
     confirmCallback = callback;
@@ -340,10 +335,8 @@
     closeConfirmModal();
   });
 
-  // ============================================
-  // FUNCIONES - MODAL DE ALERTA
-  // ============================================
 
+  // FUNCIONES - MODAL DE ALERTA
   function showAlertModal(message) {
     $alertMessage.textContent = message;
     $alertOverlay.style.display = "flex";
@@ -353,10 +346,8 @@
     $alertOverlay.style.display = "none";
   }
 
-  // ============================================
+  
   // FUNCIONES - DUPLAS
-  // ============================================
-
   function createDuplas(existingDuplas = null) {
     $duplasContainer.innerHTML = "";
 
@@ -442,10 +433,8 @@
     }
   }
 
-  // ============================================
+  
   // FUNCIONES - EDICIÓN DE CAMPAÑA
-  // ============================================
-
   function handleEditCampaign(event) {
     const campaign = event.detail;
     editingCampaignId = campaign.id;
@@ -460,10 +449,8 @@
     $modalOverlay.style.display = "flex";
   }
 
-  // ============================================
+  
   // FUNCIONES - GUARDADO Y VALIDACIÓN
-  // ============================================
-
   async function saveCampaign() {
     const cityName = normalizeCityName($cityNameInput.value);
     const startDate = $startDateInput.value;
@@ -584,10 +571,8 @@
     closeModal();
   }
 
-  // ============================================
+  
   // FUNCIONES - UTILIDADES
-  // ============================================
-
   function normalizeCityName(name) {
     return name
       .trim()

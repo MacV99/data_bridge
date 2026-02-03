@@ -1,7 +1,3 @@
-/* ============================================
-  TIPOGRAFÍA Y PALETA DE COLORES
-   ============================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
@@ -21,10 +17,7 @@
 }
 
 
-/* ============================================
-  RESET Y ESTILOS GLOBALES
-   ============================================ */
-
+/* RESET Y ESTILOS GLOBALES */
 * {
   margin: 0;
   padding: 0;
@@ -100,34 +93,7 @@ hr {
   margin: 5px 0;
 }
 
-
-/* ============================================
-  SCROLLBAR PERSONALIZADO
-   ============================================ */
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--clr-text);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--clr-main);
-}
-
-
-/* ============================================
-  UTILIDADES - FLEXBOX
-   ============================================ */
-
+/* UTILIDADES */
 .flex-column {
   display: flex;
   align-items: center;
@@ -142,11 +108,7 @@ hr {
   flex-direction: row;
 }
 
-
-/* ============================================
-  COMPONENTES - BOTONES
-   ============================================ */
-
+/* COMPONENTES - BOTONES */
 button,
 .boton,
 .boton2 {
@@ -173,9 +135,7 @@ button,
   color: var(--clr-text);
 }
 
-/* ============================================
-  COMPONENTES - FORMULARIO
-   ============================================ */
+/* COMPONENTES - FORMULARIO */
 
 input,
 textarea,
@@ -223,11 +183,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.8);
 }
 
-
-/* ============================================
-  COMPONENTES - MODAL
-============================================ */
-
 .modal-overlay {
   display: none;
   align-items: center;
@@ -242,11 +197,32 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   backdrop-filter: blur(10px);
 }
 
-/* ============================================
-  HOVER STATES (MEDIA QUERY - FINAL)
-============================================ */
 
+/* === ÚNICOS DE ESTE PROYECTO === */
+
+/* SCROLLBAR PERSONALIZADO */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--clr-text);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--clr-main);
+}
+
+
+/* HOVER STATES */
 @media (hover: hover) {
+
   button:hover,
   .boton:hover {
     background-color: var(--clr-border);

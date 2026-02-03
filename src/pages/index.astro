@@ -4,9 +4,12 @@ import Header from "../sections/header.astro";
 import CreateCity from "../components/create_city.astro";
 ---
 
+
 <Layout1 title="Dashboard">
   <Header />
   <CreateCity />
+
+  <!-- VISTA GENERAL DEL DASHBOARD -->
   <section id="dashboard" class="flex-row">
     <div id="pendiente" class="flex-column">
       <h2>PENDIENTES</h2>
@@ -15,6 +18,7 @@ import CreateCity from "../components/create_city.astro";
       <h2>MONTADAS</h2>
     </div>
   </section>
+  
 </Layout1>
 
 <style>
@@ -46,26 +50,6 @@ import CreateCity from "../components/create_city.astro";
     margin-bottom: 15px;
     font-size: 1.3rem;
     flex-shrink: 0;
-  }
-
-  .empty-text {
-    color: var(--clr-gray);
-    padding: 20px;
-  }
-
-  .empty-state {
-    width: 100%;
-    padding: 60px 20px;
-    gap: 15px;
-    color: var(--clr-gray);
-  }
-
-  .empty-state i {
-    font-size: 3rem;
-  }
-
-  .empty-state h4 {
-    color: var(--clr-text);
   }
 </style>
 
@@ -290,6 +274,26 @@ import CreateCity from "../components/create_city.astro";
     border-color: var(--clr-main);
   }
 
+  /* textos si no hay campañas en cada sección */
+  .empty-text {
+    color: var(--clr-gray);
+  }
+
+  .empty-state {
+    width: 100%;
+    padding: 60px 20px;
+    gap: 15px;
+    color: var(--clr-gray);
+  }
+
+  .empty-state i {
+    font-size: 3rem;
+  }
+
+  .empty-state h4 {
+    color: var(--clr-text);
+  }
+
   @media (hover: hover) {
     .campaign-header.clickable:hover {
       opacity: 0.8;
@@ -318,9 +322,7 @@ import CreateCity from "../components/create_city.astro";
   document.addEventListener("DOMContentLoaded", renderCampaigns);
   window.addEventListener("campaignAdded", renderCampaigns);
 
-  /**
-   * Renderiza todas las campañas separadas por estado
-   */
+  //Renderiza todas las campañas separadas por estado
   function renderCampaigns() {
     const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
 
@@ -360,9 +362,7 @@ import CreateCity from "../components/create_city.astro";
     addEventListeners();
   }
 
-  /**
-   * Renderiza una tarjeta de campaña
-   */
+  //Renderiza una tarjeta de campaña
   function renderCampaignCard(campaign) {
     return `
       <div class="campaign-card flex-column" data-id="${campaign.id}" data-status="${campaign.status}">
@@ -375,17 +375,13 @@ import CreateCity from "../components/create_city.astro";
     `;
   }
 
-  /**
-   * Agrega todos los event listeners dinámicos
-   */
+  //Agrega todos los event listeners dinámicos
   function addEventListeners() {
     addCopyClickListener();
     addCardClickListener();
   }
 
-  /**
-   * Permite copiar texto al hacer click en elementos con [data-copy]
-   */
+  //Permite copiar texto al hacer click en elementos con [data-copy]
   function addCopyClickListener() {
     document.querySelectorAll("[data-copy]").forEach((element) => {
       element.addEventListener("click", (e) => {
@@ -400,9 +396,7 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  /**
-   * Abre el modal de detalles al hacer click en la tarjeta
-   */
+  //Abre el modal de detalles al hacer click en la tarjeta
   function addCardClickListener() {
     document
       .querySelectorAll(".campaign-header.clickable")
@@ -419,9 +413,7 @@ import CreateCity from "../components/create_city.astro";
       });
   }
 
-  /**
-   * Descarga una imagen desde datos base64
-   */
+  //Elimina una campaña del localStorage
   function downloadImage(dataUrl, fileName) {
     const link = document.createElement("a");
     link.href = dataUrl;
@@ -429,9 +421,7 @@ import CreateCity from "../components/create_city.astro";
     link.click();
   }
 
-  /**
-   * Elimina una campaña del localStorage
-   */
+  //Elimina una campaña del localStorage
   function deleteCampaign(id) {
     let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
     campaigns = campaigns.filter((c) => c.id !== id);
@@ -439,9 +429,7 @@ import CreateCity from "../components/create_city.astro";
     renderCampaigns();
   }
 
-  /**
-   * Cambia el estado de una campaña
-   */
+  //Cambia el estado de una campaña
   function changeCampaignStatus(id, newStatus) {
     let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
     const campaign = campaigns.find((c) => c.id === id);
@@ -452,9 +440,7 @@ import CreateCity from "../components/create_city.astro";
     }
   }
 
-  /**
-   * Abre modal con detalles completos de una campaña
-   */
+  //Abre modal con detalles completos de una campaña
   function openCampaignModal(campaign) {
     const modalHtml = `
       <div class="modal-overlay" id="campaign-detail-overlay" style="display: flex; z-index: 50;">
@@ -604,25 +590,19 @@ import CreateCity from "../components/create_city.astro";
       });
   }
 
-  /**
-   * Formatea una fecha de YYYY-MM-DD a DD/MM/YYYY
-   */
+  //Formatea una fecha de YYYY-MM-DD a DD/MM/YYYY
   function formatDate(dateString) {
     const [year, month, day] = dateString.split("-");
     return `${day}/${month}/${year}`;
   }
 
-  /**
-   * Genera nombre de archivo para descargas
-   */
+  //Genera nombre de archivo para descargas
   function getImageFileName(cityName, duplaIndex) {
     const suffix = duplaIndex === 0 ? "1" : "5";
     return `${cityName}${suffix}`;
   }
 
-  /**
-   * Escapa caracteres especiales de HTML
-   */
+  //Escapa caracteres especiales de HTML
   function escapeHtml(text) {
     return text
       .replace(/&/g, "&amp;")
