@@ -120,12 +120,6 @@ import CreateCity from "../components/create_city.astro";
     transition: opacity 0.2s;
   }
 
-  @media (hover: hover) {
-    .campaign-header.clickable:hover {
-      opacity: 0.8;
-    }
-  }
-
   .bloque {
     padding: 5px;
     width: 100%;
@@ -252,13 +246,6 @@ import CreateCity from "../components/create_city.astro";
     transition: var(--transition);
   }
 
-  @media (hover: hover) {
-    .header-actions i:hover {
-      color: var(--clr-main);
-      background-color: var(--clr-border);
-    }
-  }
-
   .campaign-detail-modal .campaign-header p {
     font-size: 0.85rem;
     color: var(--clr-gray);
@@ -304,6 +291,15 @@ import CreateCity from "../components/create_city.astro";
   }
 
   @media (hover: hover) {
+    .campaign-header.clickable:hover {
+      opacity: 0.8;
+    }
+
+    .header-actions i:hover {
+      color: var(--clr-main);
+      background-color: var(--clr-border);
+    }
+
     .status-btn:hover {
       background-color: var(--clr-border);
     }

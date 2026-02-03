@@ -173,19 +173,6 @@ button,
   color: var(--clr-text);
 }
 
-@media (hover: hover) {
-
-  button:hover,
-  .boton:hover {
-    background-color: var(--clr-border);
-  }
-
-  .boton2:hover {
-    background-color: var(--clr-dark2);
-  }
-}
-
-
 /* ============================================
   COMPONENTES - FORMULARIO
    ============================================ */
@@ -253,4 +240,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   z-index: 100;
   background-color: #000000c5;
   backdrop-filter: blur(10px);
+}
+
+/* ============================================
+  HOVER STATES (MEDIA QUERY - FINAL)
+============================================ */
+
+@media (hover: hover) {
+  button:hover,
+  .boton:hover {
+    background-color: var(--clr-border);
+  }
+
+  .boton2:hover {
+    background-color: var(--clr-dark2);
+  }
 }
