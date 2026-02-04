@@ -238,6 +238,7 @@
 
 <script>
   //@ts-nocheck
+  import { createCampaign, updateCampaign } from "../lib/database.js";
 
   // CONSTANTES Y REFERENCIAS DOM
   const DUPLA_NAMES = ["INFO", "LUGAR"];
@@ -265,9 +266,7 @@
   let editingCampaignId = null;
   let confirmCallback = null;
 
-  
   // EVENT LISTENERS
-  
 
   $closeModal?.addEventListener("click", closeModal);
   $cancelButton?.addEventListener("click", closeModal);
@@ -299,9 +298,7 @@
   $confirmNo?.addEventListener("click", closeConfirmModal);
   $alertOk?.addEventListener("click", closeAlertModal);
 
-  
   // FUNCIONES - MODAL PRINCIPAL
-  
 
   function closeModal() {
     $modalOverlay.style.display = "none";
@@ -316,7 +313,6 @@
     $phoneNumberSelect.value = "";
     createDuplas();
   }
-
 
   // FUNCIONES - MODAL DE CONFIRMACIÓN
   function showConfirmModal(message, callback) {
@@ -335,7 +331,6 @@
     closeConfirmModal();
   });
 
-
   // FUNCIONES - MODAL DE ALERTA
   function showAlertModal(message) {
     $alertMessage.textContent = message;
@@ -346,7 +341,6 @@
     $alertOverlay.style.display = "none";
   }
 
-  
   // FUNCIONES - DUPLAS
   function createDuplas(existingDuplas = null) {
     $duplasContainer.innerHTML = "";
@@ -359,7 +353,7 @@
 
       const existingDupla = existingDuplas?.find((d) => d.name === name);
       const existingText = existingDupla?.text || "";
-      const existingImage = existingDupla?.image || "";
+      const existingImage = existingDupla?.image_url || "";
 
       duplaBlock.innerHTML = `
         <h6>DUPLA #${duplaNumber}: ${name}${duplaNumber === 2 ? " (OPCIONAL)" : ""}</h6>
@@ -433,23 +427,21 @@
     }
   }
 
-  
   // FUNCIONES - EDICIÓN DE CAMPAÑA
   function handleEditCampaign(event) {
     const campaign = event.detail;
     editingCampaignId = campaign.id;
 
     $modalTitle.textContent = "Editar Campaña";
-    $cityNameInput.value = campaign.cityName;
-    $startDateInput.value = campaign.startDate;
-    $phoneNumberSelect.value = campaign.phoneNumber;
+    $cityNameInput.value = campaign.city_name;
+    $startDateInput.value = campaign.start_date;
+    $phoneNumberSelect.value = campaign.phone_number;
 
     createDuplas(campaign.duplas);
 
     $modalOverlay.style.display = "flex";
   }
 
-  
   // FUNCIONES - GUARDADO Y VALIDACIÓN
   async function saveCampaign() {
     const cityName = normalizeCityName($cityNameInput.value);
@@ -532,46 +524,42 @@
       return;
     }
 
-    // Crear o actualizar campaña
-    const campaign = {
-      id: editingCampaignId || Date.now(),
+    // Crear objeto de campaña
+    const campaignData = {
       cityName,
       startDate,
       phoneNumber,
       duplas,
-      status: editingCampaignId
-        ? JSON.parse(localStorage.getItem("campaigns") || "[]").find(
-            (c) => c.id === editingCampaignId,
-          )?.status || "pendiente"
-        : "pendiente",
-      createdAt: editingCampaignId
-        ? JSON.parse(localStorage.getItem("campaigns") || "[]").find(
-            (c) => c.id === editingCampaignId,
-          )?.createdAt
-        : new Date().toISOString(),
     };
 
-    let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    // Deshabilitar botón mientras guarda
+    $saveButton.disabled = true;
+    $saveButton.textContent = "Guardando...";
+
+    let success = false;
 
     if (editingCampaignId) {
-      campaigns = campaigns.map((c) =>
-        c.id === editingCampaignId ? campaign : c,
-      );
+      // Actualizar campaña existente
+      success = await updateCampaign(editingCampaignId, campaignData);
     } else {
-      campaigns.push(campaign);
+      // Crear nueva campaña
+      const result = await createCampaign(campaignData);
+      success = result !== null;
     }
 
-    localStorage.setItem("campaigns", JSON.stringify(campaigns));
+    // Rehabilitar botón
+    $saveButton.disabled = false;
+    $saveButton.textContent = "Guardar";
 
-    // Notificar cambio
-    window.dispatchEvent(
-      new CustomEvent("campaignAdded", { detail: campaign }),
-    );
-
-    closeModal();
+    if (success) {
+      // Notificar cambio
+      window.dispatchEvent(new CustomEvent("campaignAdded"));
+      closeModal();
+    } else {
+      showAlertModal("Error al guardar la campaña. Intenta nuevamente.");
+    }
   }
 
-  
   // FUNCIONES - UTILIDADES
   function normalizeCityName(name) {
     return name

@@ -4,7 +4,6 @@ import Header from "../sections/header.astro";
 import CreateCity from "../components/create_city.astro";
 ---
 
-
 <Layout1 title="Dashboard">
   <Header />
   <CreateCity />
@@ -18,7 +17,6 @@ import CreateCity from "../components/create_city.astro";
       <h2>MONTADAS</h2>
     </div>
   </section>
-  
 </Layout1>
 
 <style>
@@ -316,15 +314,20 @@ import CreateCity from "../components/create_city.astro";
 
 <script>
   //@ts-nocheck
+  import {
+    getCampaigns,
+    deleteCampaign,
+    updateCampaignStatus,
+  } from "../lib/database.js";
 
   const $dashboard = document.getElementById("dashboard");
 
   document.addEventListener("DOMContentLoaded", renderCampaigns);
   window.addEventListener("campaignAdded", renderCampaigns);
 
-  //Renderiza todas las campañas separadas por estado
-  function renderCampaigns() {
-    const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+  // Renderiza todas las campañas separadas por estado
+  async function renderCampaigns() {
+    const campaigns = await getCampaigns();
 
     if (campaigns.length === 0) {
       $dashboard.innerHTML = `
@@ -362,26 +365,26 @@ import CreateCity from "../components/create_city.astro";
     addEventListeners();
   }
 
-  //Renderiza una tarjeta de campaña
+  // Renderiza una tarjeta de campaña
   function renderCampaignCard(campaign) {
     return `
       <div class="campaign-card flex-column" data-id="${campaign.id}" data-status="${campaign.status}">
         <div class="campaign-header clickable">
-          <h5>${campaign.cityName}</h5>
-          <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
-          <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
+          <h5>${campaign.city_name}</h5>
+          <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.start_date)}</p>
+          <p><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
         </div>
       </div>
     `;
   }
 
-  //Agrega todos los event listeners dinámicos
+  // Agrega todos los event listeners dinámicos
   function addEventListeners() {
     addCopyClickListener();
     addCardClickListener();
   }
 
-  //Permite copiar texto al hacer click en elementos con [data-copy]
+  // Permite copiar texto al hacer click en elementos con [data-copy]
   function addCopyClickListener() {
     document.querySelectorAll("[data-copy]").forEach((element) => {
       element.addEventListener("click", (e) => {
@@ -396,24 +399,22 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  //Abre el modal de detalles al hacer click en la tarjeta
-  function addCardClickListener() {
+  // Abre el modal de detalles al hacer click en la tarjeta
+  async function addCardClickListener() {
     document
       .querySelectorAll(".campaign-header.clickable")
       .forEach((header) => {
-        header.addEventListener("click", (e) => {
+        header.addEventListener("click", async (e) => {
           const card = e.currentTarget.closest(".campaign-card");
           const id = parseInt(card.dataset.id);
-          const campaigns = JSON.parse(
-            localStorage.getItem("campaigns") || "[]",
-          );
+          const campaigns = await getCampaigns();
           const campaign = campaigns.find((c) => c.id === id);
           if (campaign) openCampaignModal(campaign);
         });
       });
   }
 
-  //Elimina una campaña del localStorage
+  // Descarga una imagen
   function downloadImage(dataUrl, fileName) {
     const link = document.createElement("a");
     link.href = dataUrl;
@@ -421,26 +422,27 @@ import CreateCity from "../components/create_city.astro";
     link.click();
   }
 
-  //Elimina una campaña del localStorage
-  function deleteCampaign(id) {
-    let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
-    campaigns = campaigns.filter((c) => c.id !== id);
-    localStorage.setItem("campaigns", JSON.stringify(campaigns));
-    renderCampaigns();
-  }
-
-  //Cambia el estado de una campaña
-  function changeCampaignStatus(id, newStatus) {
-    let campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
-    const campaign = campaigns.find((c) => c.id === id);
-    if (campaign) {
-      campaign.status = newStatus;
-      localStorage.setItem("campaigns", JSON.stringify(campaigns));
-      renderCampaigns();
+  // Elimina una campaña de la base de datos
+  async function deleteCampaignHandler(id) {
+    const success = await deleteCampaign(id);
+    if (success) {
+      await renderCampaigns();
+    } else {
+      alert("Error al eliminar la campaña");
     }
   }
 
-  //Abre modal con detalles completos de una campaña
+  // Cambia el estado de una campaña
+  async function changeCampaignStatus(id, newStatus) {
+    const success = await updateCampaignStatus(id, newStatus);
+    if (success) {
+      await renderCampaigns();
+    } else {
+      alert("Error al cambiar el estado");
+    }
+  }
+
+  // Abre modal con detalles completos de una campaña
   function openCampaignModal(campaign) {
     const modalHtml = `
       <div class="modal-overlay" id="campaign-detail-overlay" style="display: flex; z-index: 50;">
@@ -448,26 +450,27 @@ import CreateCity from "../components/create_city.astro";
         <div class="campaign-detail-modal flex-column">
           <div class="campaign-header">
             <div class="header-top">
-              <h5 data-copy="${campaign.cityName}">${campaign.cityName}</h5>
+              <h5 data-copy="${campaign.city_name}">${campaign.city_name}</h5>
               <div class="header-actions">
                 <i class="bi bi-pencil-square edit-campaign-modal" data-id="${campaign.id}"></i>
                 <i class="bi bi-trash delete-campaign-modal" data-id="${campaign.id}"></i>
               </div>
             </div>
-            <p data-copy="${formatDate(campaign.startDate)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.startDate)}</p>
-            <p><i class="bi bi-telephone-fill"></i> ${campaign.phoneNumber}</p>
+            <p data-copy="${formatDate(campaign.start_date)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.start_date)}</p>
+            <p><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
           </div>
           <hr />
           <div class="duplas-detail">
             ${campaign.duplas
+              .sort((a, b) => a.dupla_order - b.dupla_order)
               .map(
-                (dupla, index) => `
+                (dupla) => `
               <div class="bloque">
-                <h6>DUPLA #${index + 1}: ${dupla.name}</h6>
+                <h6>DUPLA #${dupla.dupla_order}: ${dupla.name}</h6>
                 <div class="bloque-content">
                   <div class="bloque-item">
-                    <img src="${dupla.image}" alt="Imagen ${dupla.name}" />
-                    <button class="boton download-img" data-img="${dupla.image}" data-name="${getImageFileName(campaign.cityName, index)}">
+                    <img src="${dupla.image_url}" alt="Imagen ${dupla.name}" />
+                    <button class="boton download-img" data-img="${dupla.image_url}" data-name="${getImageFileName(campaign.city_name, dupla.dupla_order - 1)}">
                       <i class="bi bi-download"></i>
                     </button>
                   </div>
@@ -512,9 +515,9 @@ import CreateCity from "../components/create_city.astro";
     });
 
     // Editar campaña
-    $editBtn.addEventListener("click", (e) => {
+    $editBtn.addEventListener("click", async (e) => {
       const id = parseInt(e.currentTarget.dataset.id);
-      const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+      const campaigns = await getCampaigns();
       const campaignToEdit = campaigns.find((c) => c.id === id);
       if (campaignToEdit) {
         window.dispatchEvent(
@@ -534,8 +537,8 @@ import CreateCity from "../components/create_city.astro";
       $confirmMessage.textContent = "¿Estás seguro de eliminar esta campaña?";
       $confirmOverlay.style.display = "flex";
 
-      const handleConfirm = () => {
-        deleteCampaign(id);
+      const handleConfirm = async () => {
+        await deleteCampaignHandler(id);
         closeDetailModal();
         $confirmOverlay.style.display = "none";
         $confirmYes.removeEventListener("click", handleConfirm);
@@ -581,28 +584,28 @@ import CreateCity from "../components/create_city.astro";
     $detailOverlay
       .querySelectorAll(".campaign-status-switcher-modal .status-btn")
       .forEach((btn) => {
-        btn.addEventListener("click", (e) => {
+        btn.addEventListener("click", async (e) => {
           const id = parseInt(e.currentTarget.dataset.id);
           const newStatus = e.currentTarget.dataset.status;
-          changeCampaignStatus(id, newStatus);
+          await changeCampaignStatus(id, newStatus);
           closeDetailModal();
         });
       });
   }
 
-  //Formatea una fecha de YYYY-MM-DD a DD/MM/YYYY
+  // Formatea una fecha de YYYY-MM-DD a DD/MM/YYYY
   function formatDate(dateString) {
     const [year, month, day] = dateString.split("-");
     return `${day}/${month}/${year}`;
   }
 
-  //Genera nombre de archivo para descargas
+  // Genera nombre de archivo para descargas
   function getImageFileName(cityName, duplaIndex) {
     const suffix = duplaIndex === 0 ? "1" : "5";
     return `${cityName}${suffix}`;
   }
 
-  //Escapa caracteres especiales de HTML
+  // Escapa caracteres especiales de HTML
   function escapeHtml(text) {
     return text
       .replace(/&/g, "&amp;")
