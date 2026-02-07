@@ -398,31 +398,33 @@
       }
 
       // Event listener para preview de imagen
-      imgInput.addEventListener("change", (e) => {
+      imgInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            // Eliminar preview anterior si existe
-            const existingPreview = imgLabel.querySelector(".preview");
-            if (existingPreview) {
-              existingPreview.remove();
-            }
+          // Comprimir imagen antes de mostrar preview
+          const compressedBase64 = await compressImage(file);
 
-            // Crear nueva imagen preview
-            const previewImg = document.createElement("img");
-            previewImg.src = event.target.result;
-            previewImg.alt = "Preview";
-            previewImg.className = "preview";
-            imgLabel.appendChild(previewImg);
+          // Eliminar preview anterior si existe
+          const existingPreview = imgLabel.querySelector(".preview");
+          if (existingPreview) {
+            existingPreview.remove();
+          }
 
-            // Ocultar icono de upload
-            uploadIcon.style.display = "none";
+          // Crear nueva imagen preview
+          const previewImg = document.createElement("img");
+          previewImg.src = compressedBase64;
+          previewImg.alt = "Preview";
+          previewImg.className = "preview";
+          imgLabel.appendChild(previewImg);
 
-            // Limpiar dataset de imagen existente
-            delete imgInput.dataset.existingImage;
-          };
-          reader.readAsDataURL(file);
+          // Ocultar icono de upload
+          uploadIcon.style.display = "none";
+
+          // Guardar la imagen comprimida en el dataset
+          imgInput.dataset.compressedImage = compressedBase64;
+
+          // Limpiar dataset de imagen existente
+          delete imgInput.dataset.existingImage;
         }
       });
     });
@@ -482,16 +484,15 @@
       const duplaName = block.dataset.duplaName;
       const isDupla1 = i === 0;
 
-      // Verificar si hay archivo nuevo o imagen existente
-      const hasNewFile =
-        imgInput && imgInput.files && imgInput.files.length > 0;
-      const hasExistingImage =
-        imgInput && imgInput.dataset && imgInput.dataset.existingImage;
-      const hasText = textInput && textInput.value.trim();
+      // Verificar si hay imagen comprimida, archivo nuevo o imagen existente
+      const hasCompressedImage = imgInput?.dataset?.compressedImage;
+      const hasNewFile = imgInput?.files?.length > 0;
+      const hasExistingImage = imgInput?.dataset?.existingImage;
+      const hasText = textInput?.value.trim();
 
       // Validar dupla 1 (obligatoria)
       if (isDupla1) {
-        if (!hasNewFile && !hasExistingImage) {
+        if (!hasCompressedImage && !hasNewFile && !hasExistingImage) {
           showAlertModal("Por favor selecciona la imagen de la DUPLA #1");
           return;
         }
@@ -503,12 +504,14 @@
       }
 
       // Dupla 2 es opcional - solo agregar si tiene contenido
-      if (hasNewFile || hasExistingImage || hasText) {
+      if (hasCompressedImage || hasNewFile || hasExistingImage || hasText) {
         let imgBase64 = null;
 
-        // Prioridad: archivo nuevo > imagen existente
-        if (hasNewFile) {
-          imgBase64 = await fileToBase64(imgInput.files[0]);
+        // Prioridad: imagen comprimida > archivo nuevo > imagen existente
+        if (hasCompressedImage) {
+          imgBase64 = imgInput.dataset.compressedImage;
+        } else if (hasNewFile) {
+          imgBase64 = await compressImage(imgInput.files[0]);
         } else if (hasExistingImage) {
           imgBase64 = imgInput.dataset.existingImage;
         } else if (!isDupla1) {
@@ -575,10 +578,56 @@
       .replace(/[\u0300-\u036f]/g, ""); // Elimina tildes
   }
 
-  function fileToBase64(file) {
+  /**
+   * Comprime una imagen usando Canvas API
+   * Redimensiona a máximo 800x800 y comprime a JPEG 70%
+   */
+  async function compressImage(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
+
+      reader.onload = (e) => {
+        const img = new Image();
+
+        img.onload = () => {
+          // Configuración de compresión
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          const QUALITY = 0.7; // 70% calidad JPEG
+
+          let width = img.width;
+          let height = img.height;
+
+          // Calcular nuevas dimensiones manteniendo aspect ratio
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height);
+              height = MAX_HEIGHT;
+            }
+          }
+
+          // Crear canvas y comprimir
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convertir a JPEG comprimido
+          const compressedBase64 = canvas.toDataURL("image/jpeg", QUALITY);
+          resolve(compressedBase64);
+        };
+
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });

@@ -11,10 +11,26 @@ import CreateCity from "../components/create_city.astro";
   <!-- VISTA GENERAL DEL DASHBOARD -->
   <section id="dashboard" class="flex-row">
     <div id="pendiente" class="flex-column">
-      <h2>PENDIENTES</h2>
+      <div class="header-section flex-row">
+        <h2>
+          PENDIENTES <span class="counter" id="counter-pendiente">0</span>
+        </h2>
+        <select id="sort-pendiente" class="sort-select">
+          <option value="recent">Recientes</option>
+          <option value="dario">DARIO</option>
+          <option value="cursos">CURSOS</option>
+        </select>
+      </div>
     </div>
     <div id="montada" class="flex-column">
-      <h2>MONTADAS</h2>
+      <div class="header-section flex-row">
+        <h2>MONTADAS <span class="counter" id="counter-montada">0</span></h2>
+        <select id="sort-montada" class="sort-select">
+          <option value="recent">Recientes</option>
+          <option value="dario">DARIO</option>
+          <option value="cursos">CURSOS</option>
+        </select>
+      </div>
     </div>
   </section>
 </Layout1>
@@ -42,16 +58,53 @@ import CreateCity from "../components/create_city.astro";
     flex-direction: column;
   }
 
-  #pendiente h2,
-  #montada h2 {
-    color: var(--clr-main);
+  .header-section {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 15px;
-    font-size: 1.3rem;
     flex-shrink: 0;
+    gap: 10px;
+  }
+
+  .header-section h2 {
+    color: var(--clr-main);
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sort-select {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    background-color: var(--clr-dark2);
+    border: solid 1px var(--clr-border);
+    color: var(--clr-white);
+    cursor: pointer;
+    min-width: 120px;
+  }
+
+  .header-section h2 .counter {
+    color: var(--clr-text);
+    font-size: 0.9rem;
+    font-weight: 400;
+    background-color: var(--clr-dark2);
+    border: solid 1px var(--clr-border);
+    padding: 2px 6px;
   }
 </style>
 
 <style is:inline>
+  .header-section h2 .counter {
+    color: var(--clr-text);
+    font-size: 0.9rem;
+    font-weight: 400;
+    background-color: var(--clr-dark2);
+    border: solid 1px var(--clr-border);
+    padding: 2px 6px;
+  }
+
   .campaigns-container {
     width: 100%;
     max-width: 500px;
@@ -87,6 +140,9 @@ import CreateCity from "../components/create_city.astro";
     color: var(--clr-main);
     font-size: 1.1rem;
     margin: 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    user-select: none;
   }
 
   .campaign-header p {
@@ -188,7 +244,7 @@ import CreateCity from "../components/create_city.astro";
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     justify-content: flex-start;
   }
 
@@ -230,7 +286,7 @@ import CreateCity from "../components/create_city.astro";
 
   .campaign-detail-modal .campaign-header p {
     font-size: 0.85rem;
-    color: var(--clr-gray);
+    color: var(--clr-text);
     display: flex;
     gap: 7px;
     margin: 0;
@@ -293,6 +349,10 @@ import CreateCity from "../components/create_city.astro";
   }
 
   @media (hover: hover) {
+    .campaign-header h5:hover {
+      opacity: 0.7;
+    }
+
     .campaign-header.clickable:hover {
       opacity: 0.8;
     }
@@ -321,11 +381,26 @@ import CreateCity from "../components/create_city.astro";
   } from "../lib/database.js";
 
   const $dashboard = document.getElementById("dashboard");
+  const $sortPendiente = document.getElementById("sort-pendiente");
+  const $sortMontada = document.getElementById("sort-montada");
+
+  let currentSortPendiente = "recent";
+  let currentSortMontada = "recent";
 
   document.addEventListener("DOMContentLoaded", renderCampaigns);
   window.addEventListener("campaignAdded", renderCampaigns);
 
-  // Renderiza todas las campañas separadas por estado
+  // Event listeners para ordenamiento
+  $sortPendiente?.addEventListener("change", (e) => {
+    currentSortPendiente = e.target.value;
+    renderCampaigns();
+  });
+
+  $sortMontada?.addEventListener("change", (e) => {
+    currentSortMontada = e.target.value;
+    renderCampaigns();
+  });
+
   // Renderiza todas las campañas separadas por estado
   async function renderCampaigns() {
     // Mostrar skeletons mientras carga
@@ -344,14 +419,29 @@ import CreateCity from "../components/create_city.astro";
       return;
     }
 
-    const pendientes = campaigns.filter((c) => c.status === "pendiente");
-    const montadas = campaigns.filter((c) => c.status === "montada");
+    let pendientes = campaigns.filter((c) => c.status === "pendiente");
+    let montadas = campaigns.filter((c) => c.status === "montada");
+
+    // Aplicar ordenamiento
+    pendientes = sortCampaigns(pendientes, currentSortPendiente);
+    montadas = sortCampaigns(montadas, currentSortMontada);
 
     const $pendienteDiv = document.getElementById("pendiente");
     const $montadaDiv = document.getElementById("montada");
 
+    // Actualizar contadores
+    updateCounter("counter-pendiente", pendientes.length);
+    updateCounter("counter-montada", montadas.length);
+
     $pendienteDiv.innerHTML = `
-    <h2>PENDIENTES</h2>
+    <div class="header-section flex-row">
+      <h2>PENDIENTES <span class="counter" id="counter-pendiente">(${pendientes.length})</span></h2>
+      <select id="sort-pendiente" class="sort-select">
+        <option value="recent" ${currentSortPendiente === "recent" ? "selected" : ""}>Recientes</option>
+        <option value="dario" ${currentSortPendiente === "dario" ? "selected" : ""}>DARIO</option>
+        <option value="cursos" ${currentSortPendiente === "cursos" ? "selected" : ""}>CURSOS</option>
+      </select>
+    </div>
     <div class="campaigns-container flex-column">
       ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ""}
       ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
@@ -359,14 +449,54 @@ import CreateCity from "../components/create_city.astro";
   `;
 
     $montadaDiv.innerHTML = `
-    <h2>MONTADAS</h2>
+    <div class="header-section flex-row">
+      <h2>MONTADAS <span class="counter" id="counter-montada">(${montadas.length})</span></h2>
+      <select id="sort-montada" class="sort-select">
+        <option value="recent" ${currentSortMontada === "recent" ? "selected" : ""}>Recientes</option>
+        <option value="dario" ${currentSortMontada === "dario" ? "selected" : ""}>DARIO</option>
+        <option value="cursos" ${currentSortMontada === "cursos" ? "selected" : ""}>CURSOS</option>
+      </select>
+    </div>
     <div class="campaigns-container flex-column">
       ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ""}
       ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
     </div>
   `;
 
+    // Re-agregar event listeners
+    const newSortPendiente = document.getElementById("sort-pendiente");
+    const newSortMontada = document.getElementById("sort-montada");
+
+    newSortPendiente?.addEventListener("change", (e) => {
+      currentSortPendiente = e.target.value;
+      renderCampaigns();
+    });
+
+    newSortMontada?.addEventListener("change", (e) => {
+      currentSortMontada = e.target.value;
+      renderCampaigns();
+    });
+
     addEventListeners();
+  }
+
+  // Ordena las campañas según el criterio seleccionado
+  function sortCampaigns(campaigns, sortBy) {
+    if (sortBy === "dario") {
+      return campaigns.filter((c) => c.phone_number === "DARIO");
+    } else if (sortBy === "cursos") {
+      return campaigns.filter((c) => c.phone_number === "CURSOS");
+    }
+    // Por defecto: recientes (ya viene ordenado por created_at desc de la BD)
+    return campaigns;
+  }
+
+  // Actualiza el contador de una sección
+  function updateCounter(counterId, count) {
+    const counterElement = document.getElementById(counterId);
+    if (counterElement) {
+      counterElement.textContent = `${count}`;
+    }
   }
 
   // Muestra skeletons mientras carga
@@ -382,8 +512,25 @@ import CreateCity from "../components/create_city.astro";
     </div>
   `;
 
-    $pendienteDiv.innerHTML = `<h2>PENDIENTES</h2>${skeletonHTML}`;
-    $montadaDiv.innerHTML = `<h2>MONTADAS</h2>${skeletonHTML}`;
+    $pendienteDiv.innerHTML = `
+      <div class="header-section flex-row">
+        <h2>PENDIENTES <span class="counter">0</span></h2>
+        <select class="sort-select">
+          <option>Recientes</option>
+        </select>
+      </div>
+      ${skeletonHTML}
+    `;
+
+    $montadaDiv.innerHTML = `
+      <div class="header-section flex-row">
+        <h2>MONTADAS <span class="counter">0</span></h2>
+        <select class="sort-select">
+          <option>Recientes</option>
+        </select>
+      </div>
+      ${skeletonHTML}
+    `;
   }
 
   // Renderiza una tarjeta de campaña
@@ -391,7 +538,7 @@ import CreateCity from "../components/create_city.astro";
     return `
       <div class="campaign-card flex-column" data-id="${campaign.id}" data-status="${campaign.status}">
         <div class="campaign-header clickable">
-          <h5>${campaign.city_name}</h5>
+          <h5 class="copy-city-name" data-city="${campaign.city_name}">${campaign.city_name}</h5>
           <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.start_date)}</p>
           <p><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
         </div>
@@ -403,6 +550,7 @@ import CreateCity from "../components/create_city.astro";
   function addEventListeners() {
     addCopyClickListener();
     addCardClickListener();
+    addCityNameCopyListener();
   }
 
   // Permite copiar texto al hacer click en elementos con [data-copy]
@@ -420,12 +568,36 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
+  // Copia el nombre de la ciudad sin formato al hacer clic
+  function addCityNameCopyListener() {
+    document.querySelectorAll(".copy-city-name").forEach((element) => {
+      element.addEventListener("click", (e) => {
+        e.stopPropagation(); // Evitar que abra el modal
+        const cityName = e.currentTarget.dataset.city;
+
+        // Copiar al portapapeles sin formato
+        navigator.clipboard.writeText(cityName).then(() => {
+          const originalOpacity = e.currentTarget.style.opacity;
+          e.currentTarget.style.opacity = "0.5";
+          setTimeout(() => {
+            e.currentTarget.style.opacity = originalOpacity || "1";
+          }, 300);
+        });
+      });
+    });
+  }
+
   // Abre el modal de detalles al hacer click en la tarjeta
   async function addCardClickListener() {
     document
       .querySelectorAll(".campaign-header.clickable")
       .forEach((header) => {
         header.addEventListener("click", async (e) => {
+          // Si el click fue en el h5, no hacer nada (ya se copió)
+          if (e.target.classList.contains("copy-city-name")) {
+            return;
+          }
+
           const card = e.currentTarget.closest(".campaign-card");
           const id = parseInt(card.dataset.id);
           const campaigns = await getCampaigns();
