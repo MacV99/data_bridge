@@ -278,6 +278,72 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-radius: var(--border-radius);
 }
 
+/* COMPONENTES - ICONOS DE FILTRO */
+.filter-icon {
+  font-size: 1.3rem;
+  color: var(--clr-gray);
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 6px;
+  border-radius: 5px;
+}
+
+.filter-icon:hover {
+  color: var(--clr-white);
+  background-color: var(--clr-border);
+}
+
+.filter-icon.active {
+  color: var(--clr-main);
+}
+
+/* COMPONENTES - DROPDOWN */
+.filter-dropdown {
+  position: relative;
+}
+
+.filter-btn {
+  background-color: var(--clr-dark2);
+  border: solid 1px var(--clr-border);
+  color: var(--clr-gray);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background-color: var(--clr-dark);
+  border: solid 1px var(--clr-border);
+  min-width: 140px;
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+}
+
+.dropdown-menu.show {
+  display: flex;
+}
+
+.dropdown-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--clr-text);
+  font-size: 0.85rem;
+  border-bottom: solid 1px var(--clr-border);
+}
+
+.dropdown-item.active {
+  background-color: var(--clr-border);
+  color: var(--clr-main);
+}
+
 
 /* HOVER STATES */
 @media (hover: hover) {
