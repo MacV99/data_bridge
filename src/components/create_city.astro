@@ -59,8 +59,8 @@
   /* === MODAL PRINCIPAL (NUEVA/EDITAR CAMPAÑA) === */
   #modal-add-city {
     background-color: var(--clr-dark);
-    padding: 15px 20px;
     border: solid 1px var(--clr-border);
+    padding: 15px 20px;
     width: 470px;
     max-width: 90%;
     position: relative;
@@ -106,7 +106,6 @@
 
   #duplas-container {
     width: 100%;
-    gap: 7px;
   }
 
   .buttons {
@@ -149,17 +148,13 @@
   }
 </style>
 
-<!-- ============================================
-     ESTILOS GLOBALES PARA ELEMENTOS DINÁMICOS
-     (is:inline = sin procesamiento de Astro)
-============================================ -->
 <style is:inline>
   /* === BLOQUES DE DUPLAS === */
   .dupla-block {
     width: 100%;
-    background-color: var(--clr-dark2);
-    padding: 13px 15px;
-    gap: 10px;
+    background-color: var(--clr-dark);
+    padding: 7px 10px;
+    gap: 7px;
     position: relative;
   }
 
@@ -209,6 +204,8 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    background-color: var(--clr-dark2);
+    border: solid 1px var(--clr-border);
   }
 
   .bloque-item input[type="file"] {

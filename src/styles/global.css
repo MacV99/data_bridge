@@ -3,12 +3,12 @@
 :root {
   /* Colores principales */
   --clr-main: #d5783b;
-  --clr-dark: #0e0e0e;
-  --clr-dark2: #1d1d1d;
+  --clr-dark: #101010;
+  --clr-dark2: #161616;
   --clr-gray: #646464;
   --clr-text: #909090;
   --clr-border: #262626;
-  --clr-white: #ebeded;
+  --clr-white: #ffffff;
 
   /* Animaciones y tipografía */
   --transition: 0.11s ease;
@@ -120,7 +120,7 @@ button,
   padding-left: 16px;
   text-transform: uppercase;
   border: solid 1px var(--clr-border);
-  background-color: transparent;
+  background-color: var(--clr-dark2);
   color: var(--clr-main);
   display: flex;
   align-items: center;
@@ -133,6 +133,7 @@ button,
   border-color: transparent;
   text-decoration: underline;
   color: var(--clr-text);
+  background-color: transparent;
 }
 
 /* COMPONENTES - FORMULARIO */
@@ -142,7 +143,7 @@ textarea,
 select {
   outline: none;
   border: solid 1px var(--clr-border);
-  background-color: transparent;
+  background-color: var(--clr-dark2);
   padding: 7px 10px;
   font-size: 1rem;
   font-family: var(--font-montserrat);
@@ -193,7 +194,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100%;
   height: 100%;
   z-index: 100;
-  background-color: #000000c5;
+  background-color: rgba(0, 0, 0, 0.773);
   backdrop-filter: blur(10px);
 }
 
@@ -354,6 +355,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 
   .boton2:hover {
-    background-color: var(--clr-dark2);
+    background-color: var(--clr-border);
   }
 }
