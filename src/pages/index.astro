@@ -326,17 +326,21 @@ import CreateCity from "../components/create_city.astro";
   window.addEventListener("campaignAdded", renderCampaigns);
 
   // Renderiza todas las campañas separadas por estado
+  // Renderiza todas las campañas separadas por estado
   async function renderCampaigns() {
+    // Mostrar skeletons mientras carga
+    showLoadingState();
+
     const campaigns = await getCampaigns();
 
     if (campaigns.length === 0) {
       $dashboard.innerHTML = `
-        <div class="empty-state flex-column">
-          <i class="bi bi-inbox"></i>
-          <h4>No hay campañas aún</h4>
-          <p>Haz clic en el botón + para crear tu primera campaña</p>
-        </div>
-      `;
+      <div class="empty-state flex-column">
+        <i class="bi bi-inbox"></i>
+        <h4>No hay campañas aún</h4>
+        <p>Haz clic en el botón + para crear tu primera campaña</p>
+      </div>
+    `;
       return;
     }
 
@@ -347,22 +351,39 @@ import CreateCity from "../components/create_city.astro";
     const $montadaDiv = document.getElementById("montada");
 
     $pendienteDiv.innerHTML = `
-      <h2>PENDIENTES</h2>
-      <div class="campaigns-container flex-column">
-        ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ""}
-        ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
-      </div>
-    `;
+    <h2>PENDIENTES</h2>
+    <div class="campaigns-container flex-column">
+      ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ""}
+      ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
+    </div>
+  `;
 
     $montadaDiv.innerHTML = `
-      <h2>MONTADAS</h2>
-      <div class="campaigns-container flex-column">
-        ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ""}
-        ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
-      </div>
-    `;
+    <h2>MONTADAS</h2>
+    <div class="campaigns-container flex-column">
+      ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ""}
+      ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
+    </div>
+  `;
 
     addEventListeners();
+  }
+
+  // Muestra skeletons mientras carga
+  function showLoadingState() {
+    const $pendienteDiv = document.getElementById("pendiente");
+    const $montadaDiv = document.getElementById("montada");
+
+    const skeletonHTML = `
+    <div class="campaigns-container flex-column">
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    </div>
+  `;
+
+    $pendienteDiv.innerHTML = `<h2>PENDIENTES</h2>${skeletonHTML}`;
+    $montadaDiv.innerHTML = `<h2>MONTADAS</h2>${skeletonHTML}`;
   }
 
   // Renderiza una tarjeta de campaña

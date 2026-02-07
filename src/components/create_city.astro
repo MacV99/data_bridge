@@ -55,8 +55,8 @@
   </div>
 </div>
 
-<!-- Estilos del modal principal -->
 <style>
+  /* === MODAL PRINCIPAL (NUEVA/EDITAR CAMPAÑA) === */
   #modal-add-city {
     background-color: var(--clr-dark);
     padding: 15px 20px;
@@ -119,9 +119,8 @@
       background-color: var(--clr-border);
     }
   }
-</style>
 
-<style>
+  /* === MODALES DE CONFIRMACIÓN Y ALERTA === */
   #modal-confirm,
   #modal-alert {
     background-color: var(--clr-dark);
@@ -150,7 +149,12 @@
   }
 </style>
 
+<!-- ============================================
+     ESTILOS GLOBALES PARA ELEMENTOS DINÁMICOS
+     (is:inline = sin procesamiento de Astro)
+============================================ -->
 <style is:inline>
+  /* === BLOQUES DE DUPLAS === */
   .dupla-block {
     width: 100%;
     background-color: var(--clr-dark2);
@@ -168,6 +172,7 @@
     font-weight: 600;
   }
 
+  /* === CONTENIDO DE DUPLAS === */
   .dupla-content {
     width: 100%;
     display: flex;
@@ -191,6 +196,7 @@
     flex: 0 0 auto;
   }
 
+  /* === LABELS DE IMAGEN === */
   .bloque-item label.image-label {
     width: 192px;
     height: 192px;
@@ -229,6 +235,7 @@
     width: 100%;
   }
 
+  /* === TEXTAREA === */
   .bloque-item textarea {
     width: 100%;
     height: 100%;
@@ -534,15 +541,14 @@
 
     // Deshabilitar botón mientras guarda
     $saveButton.disabled = true;
-    $saveButton.textContent = "Guardando...";
+    $saveButton.innerHTML =
+      '<div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>';
 
     let success = false;
 
     if (editingCampaignId) {
-      // Actualizar campaña existente
       success = await updateCampaign(editingCampaignId, campaignData);
     } else {
-      // Crear nueva campaña
       const result = await createCampaign(campaignData);
       success = result !== null;
     }
