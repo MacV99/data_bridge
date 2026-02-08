@@ -20,42 +20,8 @@ import CreateCity from "../components/create_city.astro";
 
   <!-- VISTA GENERAL DEL DASHBOARD -->
   <section id="dashboard" class="flex-row">
-    <div id="pendiente" class="flex-column">
-      <div class="header-section flex-row">
-        <h2>
-          PENDIENTES <span class="counter" id="counter-pendiente">0</span>
-        </h2>
-        <div class="filter-dropdown">
-          <button
-            class="filter-btn"
-            id="filter-btn-pendiente"
-            data-filter="all"
-          >
-            <i class="bi bi-funnel"></i>
-          </button>
-          <div class="dropdown-menu" id="dropdown-pendiente">
-            <div class="dropdown-item" data-value="all">Todos</div>
-            <div class="dropdown-item" data-value="DARIO">DARIO</div>
-            <div class="dropdown-item" data-value="CURSOS">CURSOS</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="montada" class="flex-column">
-      <div class="header-section flex-row">
-        <h2>MONTADAS <span class="counter" id="counter-montada">0</span></h2>
-        <div class="filter-dropdown">
-          <button class="filter-btn" id="filter-btn-montada" data-filter="all">
-            <i class="bi bi-funnel"></i>
-          </button>
-          <div class="dropdown-menu" id="dropdown-montada">
-            <div class="dropdown-item" data-value="all">Todos</div>
-            <div class="dropdown-item" data-value="DARIO">DARIO</div>
-            <div class="dropdown-item" data-value="CURSOS">CURSOS</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="pendiente" class="flex-column"></div>
+    <div id="montada" class="flex-column"></div>
   </section>
 </Layout1>
 
@@ -82,13 +48,28 @@ import CreateCity from "../components/create_city.astro";
     flex-direction: column;
   }
 
+  @media (hover: hover) {
+    .filter-btn:hover {
+      background-color: var(--clr-border);
+      color: var(--clr-white);
+    }
+
+    .dropdown-item:hover {
+      background-color: var(--clr-border);
+      color: var(--clr-white);
+    }
+  }
+</style>
+
+<style is:inline>
   .header-section {
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 15px;
     flex-shrink: 0;
     gap: 10px;
+    line-height: 1;
   }
 
   .header-section h2 {
@@ -97,6 +78,7 @@ import CreateCity from "../components/create_city.astro";
     display: flex;
     align-items: center;
     gap: 8px;
+    line-height: 1;
   }
 
   .header-section h2 .counter {
@@ -104,32 +86,37 @@ import CreateCity from "../components/create_city.astro";
     font-size: 0.9rem;
     font-weight: 400;
     background-color: var(--clr-dark2);
-    border: solid 1px var(--clr-border);
-    padding: 2px 6px;
+    padding: 0;
+    height: 32px;
+    width: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
   }
 
-  /* === DROPDOWN DE FILTROS === */
+  /* === DROPDOWN DE ORDENAMIENTO === */
   .filter-dropdown {
-    position: relative;
+    display: flex;
+    align-self: flex-end;
   }
 
   .filter-btn {
     background-color: var(--clr-dark2);
     border: solid 1px var(--clr-border);
+    border-radius: 10px;
     color: var(--clr-gray);
-    padding: 8px 10px;
+    padding: 0;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.1rem;
-  }
-
-  .filter-btn[data-filter="DARIO"],
-  .filter-btn[data-filter="CURSOS"] {
-    color: var(--clr-main);
-    border-color: var(--clr-main);
+    height: 32px;
+    width: 32px;
+    line-height: 1;
   }
 
   .dropdown-menu {
@@ -157,43 +144,11 @@ import CreateCity from "../components/create_city.astro";
     font-size: 0.85rem;
     text-align: left;
     border-bottom: solid 1px var(--clr-border);
+    border-radius: 0px;
   }
 
   .dropdown-item:last-child {
     border-bottom: none;
-  }
-
-  .dropdown-item.active {
-    background-color: var(--clr-border);
-    color: var(--clr-main);
-  }
-
-  @media (hover: hover) {
-    .filter-btn:hover {
-      background-color: var(--clr-border);
-      color: var(--clr-white);
-    }
-
-    .filter-btn[data-filter="DARIO"]:hover,
-    .filter-btn[data-filter="CURSOS"]:hover {
-      color: var(--clr-main);
-    }
-
-    .dropdown-item:hover {
-      background-color: var(--clr-border);
-      color: var(--clr-white);
-    }
-  }
-</style>
-
-<style is:inline>
-  .header-section h2 .counter {
-    color: var(--clr-text);
-    font-size: 0.9rem;
-    font-weight: 400;
-    background-color: var(--clr-dark2);
-    border: solid 1px var(--clr-border);
-    padding: 2px 6px;
   }
 
   .campaigns-container {
@@ -457,8 +412,8 @@ import CreateCity from "../components/create_city.astro";
       background-color: var(--clr-border);
     }
 
-    .status-btn.active:hover {
-      background-color: var(--clr-main);
+    .dropdown-item:hover {
+      background-color: var(--clr-border);
     }
   }
 </style>
@@ -474,18 +429,12 @@ import CreateCity from "../components/create_city.astro";
   const $dashboard = document.getElementById("dashboard");
   const $loadingInitial = document.getElementById("loading-initial");
 
-  // Dropdowns
-  const $filterBtnPendiente = document.getElementById("filter-btn-pendiente");
-  const $filterBtnMontada = document.getElementById("filter-btn-montada");
-  const $dropdownPendiente = document.getElementById("dropdown-pendiente");
-  const $dropdownMontada = document.getElementById("dropdown-montada");
-
   // Variable global para almacenar todas las campañas (carga única)
   let allCampaigns = [];
 
-  // Estado de filtros actuales
-  let currentFilterPendiente = "all"; // all, DARIO, CURSOS
-  let currentFilterMontada = "all";
+  // Estado de ordenamiento actual
+  let currentSortPendiente = "all"; // all, DARIO, CURSOS
+  let currentSortMontada = "all";
 
   // Cargar campañas al inicio
   document.addEventListener("DOMContentLoaded", async () => {
@@ -501,62 +450,11 @@ import CreateCity from "../components/create_city.astro";
     renderCampaigns();
   });
 
-  // === MANEJO DE DROPDOWNS ===
-
-  // Toggle dropdown pendientes
-  $filterBtnPendiente?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    $dropdownPendiente.classList.toggle("show");
-    $dropdownMontada.classList.remove("show");
-  });
-
-  // Toggle dropdown montadas
-  $filterBtnMontada?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    $dropdownMontada.classList.toggle("show");
-    $dropdownPendiente.classList.remove("show");
-  });
-
-  // Seleccionar filtro en pendientes
-  $dropdownPendiente?.querySelectorAll(".dropdown-item").forEach((item) => {
-    item.addEventListener("click", (e) => {
-      const value = e.currentTarget.dataset.value;
-      currentFilterPendiente = value;
-      $filterBtnPendiente.dataset.filter = value;
-
-      // Actualizar estado activo
-      $dropdownPendiente.querySelectorAll(".dropdown-item").forEach((i) => {
-        i.classList.remove("active");
-      });
-      e.currentTarget.classList.add("active");
-
-      $dropdownPendiente.classList.remove("show");
-      renderCampaigns();
-    });
-  });
-
-  // Seleccionar filtro en montadas
-  $dropdownMontada?.querySelectorAll(".dropdown-item").forEach((item) => {
-    item.addEventListener("click", (e) => {
-      const value = e.currentTarget.dataset.value;
-      currentFilterMontada = value;
-      $filterBtnMontada.dataset.filter = value;
-
-      // Actualizar estado activo
-      $dropdownMontada.querySelectorAll(".dropdown-item").forEach((i) => {
-        i.classList.remove("active");
-      });
-      e.currentTarget.classList.add("active");
-
-      $dropdownMontada.classList.remove("show");
-      renderCampaigns();
-    });
-  });
-
   // Cerrar dropdowns al hacer clic fuera
   document.addEventListener("click", () => {
-    $dropdownPendiente?.classList.remove("show");
-    $dropdownMontada?.classList.remove("show");
+    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+      menu.classList.remove("show");
+    });
   });
 
   // Carga todas las campañas una sola vez
@@ -580,28 +478,24 @@ import CreateCity from "../components/create_city.astro";
     let pendientes = allCampaigns.filter((c) => c.status === "pendiente");
     let montadas = allCampaigns.filter((c) => c.status === "montada");
 
-    // Aplicar filtros
-    pendientes = filterCampaigns(pendientes, currentFilterPendiente);
-    montadas = filterCampaigns(montadas, currentFilterMontada);
+    // Aplicar ordenamiento
+    pendientes = sortCampaigns(pendientes, currentSortPendiente);
+    montadas = sortCampaigns(montadas, currentSortMontada);
 
     const $pendienteDiv = document.getElementById("pendiente");
     const $montadaDiv = document.getElementById("montada");
-
-    // Actualizar contadores
-    updateCounter("counter-pendiente", pendientes.length);
-    updateCounter("counter-montada", montadas.length);
 
     $pendienteDiv.innerHTML = `
     <div class="header-section flex-row">
       <h2>PENDIENTES <span class="counter" id="counter-pendiente">${pendientes.length}</span></h2>
       <div class="filter-dropdown">
-        <button class="filter-btn" id="filter-btn-pendiente" data-filter="${currentFilterPendiente}">
-          <i class="bi bi-funnel"></i>
+        <button class="filter-btn" id="filter-btn-pendiente" data-sort="${currentSortPendiente}">
+          <i class="bi bi-sort-down-alt"></i>
         </button>
         <div class="dropdown-menu" id="dropdown-pendiente">
-          <div class="dropdown-item ${currentFilterPendiente === "all" ? "active" : ""}" data-value="all">Todos</div>
-          <div class="dropdown-item ${currentFilterPendiente === "DARIO" ? "active" : ""}" data-value="DARIO">DARIO</div>
-          <div class="dropdown-item ${currentFilterPendiente === "CURSOS" ? "active" : ""}" data-value="CURSOS">CURSOS</div>
+          <div class="dropdown-item ${currentSortPendiente === "all" ? "active" : ""}" data-value="all">TODOS</div>
+          <div class="dropdown-item ${currentSortPendiente === "DARIO" ? "active" : ""}" data-value="DARIO">DARIO</div>
+          <div class="dropdown-item ${currentSortPendiente === "CURSOS" ? "active" : ""}" data-value="CURSOS">CURSOS</div>
         </div>
       </div>
     </div>
@@ -615,13 +509,13 @@ import CreateCity from "../components/create_city.astro";
     <div class="header-section flex-row">
       <h2>MONTADAS <span class="counter" id="counter-montada">${montadas.length}</span></h2>
       <div class="filter-dropdown">
-        <button class="filter-btn" id="filter-btn-montada" data-filter="${currentFilterMontada}">
-          <i class="bi bi-funnel"></i>
+        <button class="filter-btn" id="filter-btn-montada" data-sort="${currentSortMontada}">
+          <i class="bi bi-sort-down-alt"></i>
         </button>
         <div class="dropdown-menu" id="dropdown-montada">
-          <div class="dropdown-item ${currentFilterMontada === "all" ? "active" : ""}" data-value="all">Todos</div>
-          <div class="dropdown-item ${currentFilterMontada === "DARIO" ? "active" : ""}" data-value="DARIO">DARIO</div>
-          <div class="dropdown-item ${currentFilterMontada === "CURSOS" ? "active" : ""}" data-value="CURSOS">CURSOS</div>
+          <div class="dropdown-item ${currentSortMontada === "all" ? "active" : ""}" data-value="all">TODOS</div>
+          <div class="dropdown-item ${currentSortMontada === "DARIO" ? "active" : ""}" data-value="DARIO">DARIO</div>
+          <div class="dropdown-item ${currentSortMontada === "CURSOS" ? "active" : ""}" data-value="CURSOS">CURSOS</div>
         </div>
       </div>
     </div>
@@ -662,8 +556,8 @@ import CreateCity from "../components/create_city.astro";
     newDropdownPendiente?.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", (e) => {
         const value = e.currentTarget.dataset.value;
-        currentFilterPendiente = value;
-        newFilterBtnPendiente.dataset.filter = value;
+        currentSortPendiente = value;
+        newFilterBtnPendiente.dataset.sort = value;
 
         newDropdownPendiente.querySelectorAll(".dropdown-item").forEach((i) => {
           i.classList.remove("active");
@@ -679,8 +573,8 @@ import CreateCity from "../components/create_city.astro";
     newDropdownMontada?.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", (e) => {
         const value = e.currentTarget.dataset.value;
-        currentFilterMontada = value;
-        newFilterBtnMontada.dataset.filter = value;
+        currentSortMontada = value;
+        newFilterBtnMontada.dataset.sort = value;
 
         newDropdownMontada.querySelectorAll(".dropdown-item").forEach((i) => {
           i.classList.remove("active");
@@ -693,23 +587,31 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  // Filtra las campañas según el criterio seleccionado
-  function filterCampaigns(campaigns, filterBy) {
-    if (filterBy === "DARIO") {
-      return campaigns.filter((c) => c.phone_number === "DARIO");
-    } else if (filterBy === "CURSOS") {
-      return campaigns.filter((c) => c.phone_number === "CURSOS");
-    }
-    // Por defecto: todas
-    return campaigns;
-  }
+  // Ordena las campañas según el criterio seleccionado
+  function sortCampaigns(campaigns, sortBy) {
+    // Crear copia para no mutar el original
+    const sorted = [...campaigns];
 
-  // Actualiza el contador de una sección
-  function updateCounter(counterId, count) {
-    const counterElement = document.getElementById(counterId);
-    if (counterElement) {
-      counterElement.textContent = count;
+    if (sortBy === "DARIO") {
+      // DARIO primero, luego CURSOS
+      return sorted.sort((a, b) => {
+        if (a.phone_number === "DARIO" && b.phone_number !== "DARIO") return -1;
+        if (a.phone_number !== "DARIO" && b.phone_number === "DARIO") return 1;
+        return 0;
+      });
+    } else if (sortBy === "CURSOS") {
+      // CURSOS primero, luego DARIO
+      return sorted.sort((a, b) => {
+        if (a.phone_number === "CURSOS" && b.phone_number !== "CURSOS")
+          return -1;
+        if (a.phone_number !== "CURSOS" && b.phone_number === "CURSOS")
+          return 1;
+        return 0;
+      });
     }
+
+    // Por defecto: todas sin orden especial (orden original por fecha)
+    return sorted;
   }
 
   // Renderiza una tarjeta de campaña
