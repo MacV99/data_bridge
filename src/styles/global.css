@@ -2,11 +2,11 @@
 
 :root {
   /* Colores principales */
-  --clr-main: #d5783b;
+  --clr-main: #f39252;
   --clr-dark: #101010;
   --clr-dark2: #161616;
   --clr-gray: #646464;
-  --clr-text: #909090;
+  --clr-text: #bababa;
   --clr-border: #262626;
   --clr-white: #ffffff;
 
@@ -130,7 +130,7 @@ button,
 }
 
 .boton2 {
-  border-color: transparent;
+  /* border-color: transparent; */
   text-decoration: underline;
   color: var(--clr-text);
   background-color: transparent;
@@ -341,7 +341,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .dropdown-item.active {
-  background-color: var(--clr-border);
   color: var(--clr-main);
 }
 
