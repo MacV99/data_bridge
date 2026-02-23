@@ -151,6 +151,18 @@ import CreateCity from "../components/create_city.astro";
     border-bottom: none;
   }
 
+  /* === ESTILOS PARA ELEMENTOS CLICKEABLES === */
+  .clickable-img {
+    cursor: pointer;
+    transition: var(--transition);
+    opacity: 1;
+  }
+
+  .clickable-text {
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
   .campaigns-container {
     width: 100%;
     max-width: 500px;
@@ -414,6 +426,18 @@ import CreateCity from "../components/create_city.astro";
 
     .dropdown-item:hover {
       background-color: var(--clr-border);
+    }
+
+    .clickable-img:hover {
+      opacity: 0.4;
+    }
+
+    .clickable-text:hover {
+      opacity: 0.4;
+    }
+
+    .status-btn.active:hover {
+      background-color: var(--clr-main);
     }
   }
 </style>
@@ -689,10 +713,10 @@ import CreateCity from "../components/create_city.astro";
   }
 
   // Descarga una imagen
-  function downloadImage(dataUrl, fileName) {
+  function downloadImage(dataUrl, fileName, date) {
     const link = document.createElement("a");
     link.href = dataUrl;
-    link.download = `${fileName}.png`;
+    link.download = `${date}-${fileName}.png`;
     link.click();
   }
 
@@ -745,16 +769,10 @@ import CreateCity from "../components/create_city.astro";
                 <h6>DUPLA #${dupla.dupla_order}: ${dupla.name}</h6>
                 <div class="bloque-content">
                   <div class="bloque-item">
-                    <img src="${dupla.image_url}" alt="Imagen ${dupla.name}" />
-                    <button class="boton download-img" data-img="${dupla.image_url}" data-name="${getImageFileName(campaign.city_name, dupla.dupla_order - 1)}">
-                      <i class="bi bi-download"></i>
-                    </button>
+                    <img src="${dupla.image_url}" alt="Imagen ${dupla.name}" class="clickable-img" data-img="${dupla.image_url}" data-name="${getImageFileName(campaign.city_name, dupla.dupla_order - 1)}" data-date="${formatDate(campaign.start_date)}" />
                   </div>
                   <div class="bloque-item">
-                    <p>${escapeHtml(dupla.text)}</p>
-                    <button class="boton copy-text" data-text="${escapeHtml(dupla.text)}">
-                      <i class="bi bi-clipboard"></i>
-                    </button>
+                    <p class="clickable-text" data-text="${escapeHtml(dupla.text)}">${escapeHtml(dupla.text)}</p>
                   </div>
                 </div>
               </div>
@@ -835,24 +853,25 @@ import CreateCity from "../components/create_city.astro";
       });
     });
 
-    $detailOverlay.querySelectorAll(".copy-text").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
+    $detailOverlay.querySelectorAll(".clickable-text").forEach((p) => {
+      p.addEventListener("click", (e) => {
         const text = e.currentTarget.dataset.text;
         navigator.clipboard.writeText(text).then(() => {
-          const originalText = e.currentTarget.innerHTML;
-          e.currentTarget.innerHTML = '<i class="bi bi-check"></i> Copiado!';
+          const originalText = e.currentTarget.textContent;
+          e.currentTarget.textContent = "✓ Copiado!";
           setTimeout(() => {
-            e.currentTarget.innerHTML = originalText;
+            e.currentTarget.textContent = originalText;
           }, 1500);
         });
       });
     });
 
-    $detailOverlay.querySelectorAll(".download-img").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
+    $detailOverlay.querySelectorAll(".clickable-img").forEach((img) => {
+      img.addEventListener("click", (e) => {
         const imgData = e.currentTarget.dataset.img;
         const fileName = e.currentTarget.dataset.name;
-        downloadImage(imgData, fileName);
+        const date = e.currentTarget.dataset.date;
+        downloadImage(imgData, fileName, date);
       });
     });
 
