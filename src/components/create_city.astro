@@ -14,11 +14,15 @@
     <div class="flex-row" style="width: 100%; gap: 5px;">
       <input id="start-date" type="date" required class="form-date" />
 
-      <select id="phone-number" required class="form-select">
-        <option value="" disabled selected hidden>NÚMERO</option>
-        <option value="DARIO">DARIO: 15558720556</option>
-        <option value="CURSOS">CURSOS: 15558432527</option>
-      </select>
+      <input
+        id="phone-number"
+        type="text"
+        placeholder="ÚLTIMOS 4 DÍGITOS"
+        maxlength="4"
+        pattern="[0-9]{4}"
+        required
+        class="form-select"
+      />
     </div>
 
     <hr />
@@ -261,7 +265,7 @@
   const $duplasContainer = document.getElementById("duplas-container");
   const $cityNameInput = document.getElementById("city-name");
   const $startDateInput = document.getElementById("start-date");
-  const $phoneNumberSelect = document.getElementById("phone-number");
+  const $phoneNumberInput = document.getElementById("phone-number");
   const $modalTitle = document.getElementById("modal-title");
 
   // Modales de confirmación y alerta
@@ -277,8 +281,12 @@
   let editingCampaignId = null;
   let confirmCallback = null;
 
-  // EVENT LISTENERS
+  // Solo permite escribir dígitos en el campo de teléfono
+  $phoneNumberInput?.addEventListener("input", () => {
+    $phoneNumberInput.value = $phoneNumberInput.value.replace(/\D/g, "");
+  });
 
+  // EVENT LISTENERS
   $closeModal?.addEventListener("click", closeModal);
   $cancelButton?.addEventListener("click", closeModal);
   $saveButton?.addEventListener("click", saveCampaign);
@@ -321,7 +329,7 @@
     $modalTitle.textContent = "Nueva Campaña";
     $cityNameInput.value = "";
     $startDateInput.value = "";
-    $phoneNumberSelect.value = "";
+    $phoneNumberInput.value = "";
     createDuplas();
   }
 
@@ -405,29 +413,19 @@
       imgInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith("image/")) {
-          // Comprimir imagen antes de mostrar preview
           const compressedBase64 = await compressImage(file);
 
-          // Eliminar preview anterior si existe
           const existingPreview = imgLabel.querySelector(".preview");
-          if (existingPreview) {
-            existingPreview.remove();
-          }
+          if (existingPreview) existingPreview.remove();
 
-          // Crear nueva imagen preview
           const previewImg = document.createElement("img");
           previewImg.src = compressedBase64;
           previewImg.alt = "Preview";
           previewImg.className = "preview";
           imgLabel.appendChild(previewImg);
 
-          // Ocultar icono de upload
           uploadIcon.style.display = "none";
-
-          // Guardar la imagen comprimida en el dataset
           imgInput.dataset.compressedImage = compressedBase64;
-
-          // Limpiar dataset de imagen existente
           delete imgInput.dataset.existingImage;
         }
       });
@@ -448,7 +446,7 @@
     $modalTitle.textContent = "Editar Campaña";
     $cityNameInput.value = campaign.city_name;
     $startDateInput.value = campaign.start_date;
-    $phoneNumberSelect.value = campaign.phone_number;
+    $phoneNumberInput.value = campaign.phone_number;
 
     createDuplas(campaign.duplas);
 
@@ -459,9 +457,8 @@
   async function saveCampaign() {
     const cityName = normalizeCityName($cityNameInput.value);
     const startDate = $startDateInput.value;
-    const phoneNumber = $phoneNumberSelect.value;
+    const phoneNumber = $phoneNumberInput.value.trim();
 
-    // Validaciones básicas
     if (!cityName) {
       showAlertModal("Por favor ingresa el nombre de la ciudad");
       return;
@@ -472,15 +469,14 @@
       return;
     }
 
-    if (!phoneNumber) {
-      showAlertModal("Por favor selecciona el número de teléfono");
+    if (!phoneNumber || !/^\d{4}$/.test(phoneNumber)) {
+      showAlertModal("Por favor ingresa los últimos 4 dígitos del número");
       return;
     }
 
     const duplas = [];
     const duplaBlocks = $duplasContainer.querySelectorAll(".dupla-block");
 
-    // Recolectar datos de duplas
     for (let i = 0; i < duplaBlocks.length; i++) {
       const block = duplaBlocks[i];
       const imgInput = block.querySelector(".dupla-img");
@@ -488,30 +484,25 @@
       const duplaName = block.dataset.duplaName;
       const isDupla1 = i === 0;
 
-      // Verificar si hay imagen comprimida, archivo nuevo o imagen existente
       const hasCompressedImage = imgInput?.dataset?.compressedImage;
       const hasNewFile = imgInput?.files?.length > 0;
       const hasExistingImage = imgInput?.dataset?.existingImage;
       const hasText = textInput?.value.trim();
 
-      // Validar dupla 1 (obligatoria)
       if (isDupla1) {
         if (!hasCompressedImage && !hasNewFile && !hasExistingImage) {
           showAlertModal("Por favor selecciona la imagen de la DUPLA #1");
           return;
         }
-
         if (!hasText) {
           showAlertModal("Por favor completa el texto de la DUPLA #1");
           return;
         }
       }
 
-      // Dupla 2 es opcional - solo agregar si tiene contenido
       if (hasCompressedImage || hasNewFile || hasExistingImage || hasText) {
         let imgBase64 = null;
 
-        // Prioridad: imagen comprimida > archivo nuevo > imagen existente
         if (hasCompressedImage) {
           imgBase64 = imgInput.dataset.compressedImage;
         } else if (hasNewFile) {
@@ -519,7 +510,7 @@
         } else if (hasExistingImage) {
           imgBase64 = imgInput.dataset.existingImage;
         } else if (!isDupla1) {
-          continue; // Skip dupla 2 si no tiene imagen
+          continue;
         }
 
         if (imgBase64) {
@@ -532,21 +523,13 @@
       }
     }
 
-    // Verificar que al menos dupla 1 exista
     if (duplas.length === 0) {
       showAlertModal("Debes completar al menos la DUPLA #1");
       return;
     }
 
-    // Crear objeto de campaña
-    const campaignData = {
-      cityName,
-      startDate,
-      phoneNumber,
-      duplas,
-    };
+    const campaignData = { cityName, startDate, phoneNumber, duplas };
 
-    // Deshabilitar botón mientras guarda
     $saveButton.disabled = true;
     $saveButton.innerHTML =
       '<div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>';
@@ -560,12 +543,10 @@
       success = result !== null;
     }
 
-    // Rehabilitar botón
     $saveButton.disabled = false;
     $saveButton.textContent = "Guardar";
 
     if (success) {
-      // Notificar cambio
       window.dispatchEvent(new CustomEvent("campaignAdded"));
       closeModal();
     } else {
@@ -579,13 +560,9 @@
       .trim()
       .toUpperCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, ""); // Elimina tildes
+      .replace(/[\u0300-\u036f]/g, "");
   }
 
-  /**
-   * Comprime una imagen usando Canvas API
-   * Redimensiona a máximo 800x800 y comprime a JPEG 70%
-   */
   async function compressImage(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -594,15 +571,13 @@
         const img = new Image();
 
         img.onload = () => {
-          // Configuración de compresión
           const MAX_WIDTH = 800;
           const MAX_HEIGHT = 800;
-          const QUALITY = 0.7; // 70% calidad JPEG
+          const QUALITY = 0.7;
 
           let width = img.width;
           let height = img.height;
 
-          // Calcular nuevas dimensiones manteniendo aspect ratio
           if (width > height) {
             if (width > MAX_WIDTH) {
               height = Math.round((height * MAX_WIDTH) / width);
@@ -615,7 +590,6 @@
             }
           }
 
-          // Crear canvas y comprimir
           const canvas = document.createElement("canvas");
           canvas.width = width;
           canvas.height = height;
@@ -623,7 +597,6 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convertir a JPEG comprimido
           const compressedBase64 = canvas.toDataURL("image/jpeg", QUALITY);
           resolve(compressedBase64);
         };

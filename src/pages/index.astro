@@ -47,18 +47,6 @@ import CreateCity from "../components/create_city.astro";
     overflow: hidden;
     flex-direction: column;
   }
-
-  @media (hover: hover) {
-    .filter-btn:hover {
-      background-color: var(--clr-border);
-      color: var(--clr-white);
-    }
-
-    .dropdown-item:hover {
-      background-color: var(--clr-border);
-      color: var(--clr-white);
-    }
-  }
 </style>
 
 <style is:inline>
@@ -94,61 +82,6 @@ import CreateCity from "../components/create_city.astro";
     justify-content: center;
     flex-shrink: 0;
     line-height: 1;
-  }
-
-  /* === DROPDOWN DE ORDENAMIENTO === */
-  .filter-dropdown {
-    display: flex;
-    align-self: flex-end;
-  }
-
-  .filter-btn {
-    background-color: var(--clr-dark2);
-    border: solid 1px var(--clr-border);
-    border-radius: 10px;
-    color: var(--clr-text);
-    padding: 0;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    height: 32px;
-    width: 32px;
-    line-height: 1;
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    top: calc(100% + 5px);
-    right: 0;
-    background-color: var(--clr-dark);
-    border: solid 1px var(--clr-border);
-    min-width: 140px;
-    z-index: 10;
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .dropdown-menu.show {
-    display: flex;
-  }
-
-  .dropdown-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: var(--transition);
-    color: var(--clr-text);
-    font-size: 0.85rem;
-    text-align: left;
-    border-bottom: solid 1px var(--clr-border);
-    border-radius: 0px;
-  }
-
-  .dropdown-item:last-child {
-    border-bottom: none;
   }
 
   /* === ESTILOS PARA ELEMENTOS CLICKEABLES === */
@@ -386,7 +319,6 @@ import CreateCity from "../components/create_city.astro";
     border-color: var(--clr-main);
   }
 
-  /* textos si no hay campañas en cada sección */
   .empty-text {
     color: var(--clr-gray);
   }
@@ -424,10 +356,6 @@ import CreateCity from "../components/create_city.astro";
       background-color: var(--clr-border);
     }
 
-    .dropdown-item:hover {
-      background-color: var(--clr-border);
-    }
-
     .clickable-img:hover {
       opacity: 0.4;
     }
@@ -453,12 +381,7 @@ import CreateCity from "../components/create_city.astro";
   const $dashboard = document.getElementById("dashboard");
   const $loadingInitial = document.getElementById("loading-initial");
 
-  // Variable global para almacenar todas las campañas (carga única)
   let allCampaigns = [];
-
-  // Estado de ordenamiento actual
-  let currentSortPendiente = "all"; // all, DARIO, CURSOS
-  let currentSortMontada = "all";
 
   // Cargar campañas al inicio
   document.addEventListener("DOMContentLoaded", async () => {
@@ -474,168 +397,51 @@ import CreateCity from "../components/create_city.astro";
     renderCampaigns();
   });
 
-  // Cerrar dropdowns al hacer clic fuera
-  document.addEventListener("click", () => {
-    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
-      menu.classList.remove("show");
-    });
-  });
-
   // Carga todas las campañas una sola vez
   async function loadCampaigns() {
     allCampaigns = await getCampaigns();
   }
 
-  // Renderiza todas las campañas separadas por estado (usa datos cargados, no recarga)
+  // Renderiza todas las campañas separadas por estado
   function renderCampaigns() {
     if (allCampaigns.length === 0) {
       $dashboard.innerHTML = `
-      <div class="empty-state flex-column">
-        <i class="bi bi-inbox"></i>
-        <h4>No hay campañas aún</h4>
-        <p>Haz clic en el botón + para crear tu primera campaña</p>
-      </div>
-    `;
+        <div class="empty-state flex-column">
+          <i class="bi bi-inbox"></i>
+          <h4>No hay campañas aún</h4>
+          <p>Haz clic en el botón + para crear tu primera campaña</p>
+        </div>
+      `;
       return;
     }
 
-    let pendientes = allCampaigns.filter((c) => c.status === "pendiente");
-    let montadas = allCampaigns.filter((c) => c.status === "montada");
-
-    // Aplicar ordenamiento
-    pendientes = sortCampaigns(pendientes, currentSortPendiente);
-    montadas = sortCampaigns(montadas, currentSortMontada);
+    const pendientes = allCampaigns.filter((c) => c.status === "pendiente");
+    const montadas = allCampaigns.filter((c) => c.status === "montada");
 
     const $pendienteDiv = document.getElementById("pendiente");
     const $montadaDiv = document.getElementById("montada");
 
     $pendienteDiv.innerHTML = `
-    <div class="header-section flex-row">
-      <h2>PENDIENTES <span class="counter" id="counter-pendiente">${pendientes.length}</span></h2>
-      <div class="filter-dropdown">
-        <button class="filter-btn" id="filter-btn-pendiente" data-sort="${currentSortPendiente}">
-          <i class="bi bi-sort-down-alt"></i>
-        </button>
-        <div class="dropdown-menu" id="dropdown-pendiente">
-          <div class="dropdown-item ${currentSortPendiente === "all" ? "active" : ""}" data-value="all">TODOS</div>
-          <div class="dropdown-item ${currentSortPendiente === "DARIO" ? "active" : ""}" data-value="DARIO">DARIO</div>
-          <div class="dropdown-item ${currentSortPendiente === "CURSOS" ? "active" : ""}" data-value="CURSOS">CURSOS</div>
-        </div>
+      <div class="header-section flex-row">
+        <h2>PENDIENTES <span class="counter">${pendientes.length}</span></h2>
       </div>
-    </div>
-    <div class="campaigns-container flex-column">
-      ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ""}
-      ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
-    </div>
-  `;
+      <div class="campaigns-container flex-column">
+        ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ""}
+        ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
+      </div>
+    `;
 
     $montadaDiv.innerHTML = `
-    <div class="header-section flex-row">
-      <h2>MONTADAS <span class="counter" id="counter-montada">${montadas.length}</span></h2>
-      <div class="filter-dropdown">
-        <button class="filter-btn" id="filter-btn-montada" data-sort="${currentSortMontada}">
-          <i class="bi bi-sort-down-alt"></i>
-        </button>
-        <div class="dropdown-menu" id="dropdown-montada">
-          <div class="dropdown-item ${currentSortMontada === "all" ? "active" : ""}" data-value="all">TODOS</div>
-          <div class="dropdown-item ${currentSortMontada === "DARIO" ? "active" : ""}" data-value="DARIO">DARIO</div>
-          <div class="dropdown-item ${currentSortMontada === "CURSOS" ? "active" : ""}" data-value="CURSOS">CURSOS</div>
-        </div>
+      <div class="header-section flex-row">
+        <h2>MONTADAS <span class="counter">${montadas.length}</span></h2>
       </div>
-    </div>
-    <div class="campaigns-container flex-column">
-      ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ""}
-      ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
-    </div>
-  `;
+      <div class="campaigns-container flex-column">
+        ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ""}
+        ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
+      </div>
+    `;
 
-    // Re-agregar event listeners para los nuevos dropdowns
-    setupDropdownListeners();
     addEventListeners();
-  }
-
-  // Configura los listeners de los dropdowns después de renderizar
-  function setupDropdownListeners() {
-    const newFilterBtnPendiente = document.getElementById(
-      "filter-btn-pendiente",
-    );
-    const newFilterBtnMontada = document.getElementById("filter-btn-montada");
-    const newDropdownPendiente = document.getElementById("dropdown-pendiente");
-    const newDropdownMontada = document.getElementById("dropdown-montada");
-
-    // Toggle dropdowns
-    newFilterBtnPendiente?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      newDropdownPendiente.classList.toggle("show");
-      newDropdownMontada.classList.remove("show");
-    });
-
-    newFilterBtnMontada?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      newDropdownMontada.classList.toggle("show");
-      newDropdownPendiente.classList.remove("show");
-    });
-
-    // Items de pendientes
-    newDropdownPendiente?.querySelectorAll(".dropdown-item").forEach((item) => {
-      item.addEventListener("click", (e) => {
-        const value = e.currentTarget.dataset.value;
-        currentSortPendiente = value;
-        newFilterBtnPendiente.dataset.sort = value;
-
-        newDropdownPendiente.querySelectorAll(".dropdown-item").forEach((i) => {
-          i.classList.remove("active");
-        });
-        e.currentTarget.classList.add("active");
-
-        newDropdownPendiente.classList.remove("show");
-        renderCampaigns();
-      });
-    });
-
-    // Items de montadas
-    newDropdownMontada?.querySelectorAll(".dropdown-item").forEach((item) => {
-      item.addEventListener("click", (e) => {
-        const value = e.currentTarget.dataset.value;
-        currentSortMontada = value;
-        newFilterBtnMontada.dataset.sort = value;
-
-        newDropdownMontada.querySelectorAll(".dropdown-item").forEach((i) => {
-          i.classList.remove("active");
-        });
-        e.currentTarget.classList.add("active");
-
-        newDropdownMontada.classList.remove("show");
-        renderCampaigns();
-      });
-    });
-  }
-
-  // Ordena las campañas según el criterio seleccionado
-  function sortCampaigns(campaigns, sortBy) {
-    // Crear copia para no mutar el original
-    const sorted = [...campaigns];
-
-    if (sortBy === "DARIO") {
-      // DARIO primero, luego CURSOS
-      return sorted.sort((a, b) => {
-        if (a.phone_number === "DARIO" && b.phone_number !== "DARIO") return -1;
-        if (a.phone_number !== "DARIO" && b.phone_number === "DARIO") return 1;
-        return 0;
-      });
-    } else if (sortBy === "CURSOS") {
-      // CURSOS primero, luego DARIO
-      return sorted.sort((a, b) => {
-        if (a.phone_number === "CURSOS" && b.phone_number !== "CURSOS")
-          return -1;
-        if (a.phone_number !== "CURSOS" && b.phone_number === "CURSOS")
-          return 1;
-        return 0;
-      });
-    }
-
-    // Por defecto: todas sin orden especial (orden original por fecha)
-    return sorted;
   }
 
   // Renderiza una tarjeta de campaña
@@ -673,19 +479,16 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  // Copia el nombre de la ciudad sin formato al hacer clic
+  // Copia el nombre de la ciudad al hacer clic en el h5
   function addCityNameCopyListener() {
     document.querySelectorAll(".copy-city-name").forEach((element) => {
       element.addEventListener("click", (e) => {
-        e.stopPropagation(); // Evitar que abra el modal
+        e.stopPropagation();
         const cityName = e.currentTarget.dataset.city;
-
-        // Copiar al portapapeles sin formato
         navigator.clipboard.writeText(cityName).then(() => {
-          const originalOpacity = e.currentTarget.style.opacity;
           e.currentTarget.style.opacity = "0.5";
           setTimeout(() => {
-            e.currentTarget.style.opacity = originalOpacity || "1";
+            e.currentTarget.style.opacity = "1";
           }, 300);
         });
       });
@@ -698,14 +501,10 @@ import CreateCity from "../components/create_city.astro";
       .querySelectorAll(".campaign-header.clickable")
       .forEach((header) => {
         header.addEventListener("click", async (e) => {
-          // Si el click fue en el h5, no hacer nada (ya se copió)
-          if (e.target.classList.contains("copy-city-name")) {
-            return;
-          }
+          if (e.target.classList.contains("copy-city-name")) return;
 
           const card = e.currentTarget.closest(".campaign-card");
           const id = parseInt(card.dataset.id);
-          // Usar allCampaigns en lugar de volver a llamar getCampaigns
           const campaign = allCampaigns.find((c) => c.id === id);
           if (campaign) openCampaignModal(campaign);
         });
@@ -798,17 +597,13 @@ import CreateCity from "../components/create_city.astro";
     const $editBtn = $detailOverlay.querySelector(".edit-campaign-modal");
     const $deleteBtn = $detailOverlay.querySelector(".delete-campaign-modal");
 
-    const closeDetailModal = () => {
-      $detailOverlay.remove();
-    };
+    const closeDetailModal = () => $detailOverlay.remove();
 
-    // Cerrar modal
     $closeBtn.addEventListener("click", closeDetailModal);
     $detailOverlay.addEventListener("click", (e) => {
       if (e.target === $detailOverlay) closeDetailModal();
     });
 
-    // Editar campaña
     $editBtn.addEventListener("click", async (e) => {
       const id = parseInt(e.currentTarget.dataset.id);
       const campaignToEdit = allCampaigns.find((c) => c.id === id);
@@ -820,7 +615,6 @@ import CreateCity from "../components/create_city.astro";
       }
     });
 
-    // Eliminar campaña
     $deleteBtn.addEventListener("click", (e) => {
       const id = parseInt(e.currentTarget.dataset.id);
       const $confirmOverlay = document.getElementById("modal-confirm-overlay");
@@ -840,7 +634,6 @@ import CreateCity from "../components/create_city.astro";
       $confirmYes.addEventListener("click", handleConfirm);
     });
 
-    // Botones dentro del modal
     $detailOverlay.querySelectorAll("[data-copy]").forEach((element) => {
       element.addEventListener("click", (e) => {
         const text = e.currentTarget.dataset.copy;
