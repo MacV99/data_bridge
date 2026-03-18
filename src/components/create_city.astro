@@ -29,6 +29,8 @@
 
     <div id="duplas-container" class="flex-column"></div>
 
+    <hr />
+
     <!-- SECCIÓN DE AUDIO -->
     <div id="audio-section" class="flex-column">
       <h6 class="audio-section-title">AUDIO</h6>
@@ -42,6 +44,22 @@
           accept=".ogg,.mp3,.wav,.m4a,audio/*"
         />
       </label>
+
+      <!-- Spinner que aparece mientras convierte el audio -->
+      <div
+        id="audio-converting"
+        class="flex-row"
+        style="display: none !important; gap: 8px; width: 100%;"
+      >
+        <div
+          class="spinner"
+          style="width: 18px; height: 18px; border-width: 2px;"
+        >
+        </div>
+        <span style="font-size: 0.8rem; color: var(--clr-text);"
+          >Convirtiendo a MP3...</span
+        >
+      </div>
 
       <audio id="audio-preview" controls></audio>
     </div>
@@ -137,10 +155,8 @@
   /* === SECCIÓN DE AUDIO === */
   #audio-section {
     width: 100%;
-    gap: 5px;
-    padding: 7px 10px;
+    gap: 8px;
     align-items: flex-start;
-    margin-top: -5px;
   }
 
   .audio-section-title {
@@ -149,7 +165,6 @@
     font-weight: 600;
   }
 
-  /* El label actúa como botón para abrir el selector de archivos */
   .audio-label {
     width: 100%;
     gap: 10px;
@@ -177,12 +192,10 @@
     text-transform: none;
   }
 
-  /* El input file está oculto, el label lo activa */
   .audio-label input[type="file"] {
     display: none;
   }
 
-  /* Reproductor nativo — se muestra solo cuando hay audio */
   #audio-preview {
     width: 100%;
     display: none;
@@ -234,7 +247,7 @@
     width: 100%;
     background-color: var(--clr-dark);
     padding: 7px 10px;
-    gap: 5px;
+    gap: 7px;
     position: relative;
   }
 
@@ -247,7 +260,6 @@
     font-weight: 600;
   }
 
-  /* === CONTENIDO DE DUPLAS === */
   .dupla-content {
     width: 100%;
     display: flex;
@@ -271,7 +283,6 @@
     flex: 0 0 auto;
   }
 
-  /* === LABELS DE IMAGEN === */
   .bloque-item label.image-label {
     width: 192px;
     height: 192px;
@@ -312,7 +323,6 @@
     width: 100%;
   }
 
-  /* === TEXTAREA === */
   .bloque-item textarea {
     width: 100%;
     height: 100%;
@@ -348,16 +358,15 @@
   const $audioInput = document.getElementById("campaign-audio");
   const $audioPreview = document.getElementById("audio-preview");
   const $audioFilename = document.getElementById("audio-filename");
+  const $audioConverting = document.getElementById("audio-converting");
 
-  // Guarda el audio en memoria entre operaciones
   let currentAudioBase64 = null;
 
-  // Modales de confirmación y alerta
+  // Modales
   const $confirmOverlay = document.getElementById("modal-confirm-overlay");
   const $confirmMessage = document.getElementById("confirm-message");
   const $confirmYes = document.querySelector(".confirm-yes");
   const $confirmNo = document.querySelector(".confirm-no");
-
   const $alertOverlay = document.getElementById("modal-alert-overlay");
   const $alertMessage = document.getElementById("alert-message");
   const $alertOk = document.querySelector(".alert-ok");
@@ -365,21 +374,49 @@
   let editingCampaignId = null;
   let confirmCallback = null;
 
-  // Solo permite escribir dígitos en el campo de teléfono
+  // Solo permite dígitos en el campo de teléfono
   $phoneNumberInput?.addEventListener("input", () => {
     $phoneNumberInput.value = $phoneNumberInput.value.replace(/\D/g, "");
   });
 
-  // Cuando se selecciona un archivo de audio: preview + convertir a base64
+  // Cuando se selecciona un audio: convertir a MP3 y mostrar preview
   $audioInput?.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    $audioFilename.textContent = file.name;
-    currentAudioBase64 = await fileToBase64(file);
+    // Mostrar spinner y deshabilitar el botón guardar mientras convierte
+    $audioFilename.textContent = "Convirtiendo...";
+    $audioConverting.style.display = "flex !important";
+    $audioConverting.style.setProperty("display", "flex", "important");
+    $saveButton.disabled = true;
 
-    $audioPreview.src = currentAudioBase64;
-    $audioPreview.style.display = "block";
+    try {
+      // Si ya es MP3, no hace falta convertir — solo pasarlo a base64
+      if (file.type === "audio/mpeg" || file.name.endsWith(".mp3")) {
+        currentAudioBase64 = await fileToBase64(file);
+        $audioFilename.textContent = file.name;
+      } else {
+        // Convertir cualquier otro formato (ogg, wav, m4a...) a MP3
+        currentAudioBase64 = await convertToMp3(file);
+        $audioFilename.textContent =
+          file.name.replace(/\.[^/.]+$/, "") + ".mp3 ✓";
+      }
+
+      // Mostrar reproductor con el audio convertido
+      $audioPreview.src = currentAudioBase64;
+      $audioPreview.style.display = "block";
+    } catch (err) {
+      console.error("Error al convertir audio:", err);
+      showAlertModal(
+        "No se pudo convertir el audio. Intenta con otro archivo.",
+      );
+      $audioFilename.textContent = "Cargar audio (.ogg, .mp3...)";
+      currentAudioBase64 = null;
+    } finally {
+      // Ocultar spinner y rehabilitar guardar
+      $audioConverting.style.setProperty("display", "none", "important");
+      $saveButton.disabled = false;
+    }
   });
 
   // EVENT LISTENERS
@@ -400,15 +437,12 @@
   $modalOverlay?.addEventListener("click", (e) => {
     if (e.target === $modalOverlay) closeModal();
   });
-
   $confirmOverlay?.addEventListener("click", (e) => {
     if (e.target === $confirmOverlay) closeConfirmModal();
   });
-
   $alertOverlay?.addEventListener("click", (e) => {
     if (e.target === $alertOverlay) closeAlertModal();
   });
-
   $confirmNo?.addEventListener("click", closeConfirmModal);
   $alertOk?.addEventListener("click", closeAlertModal);
 
@@ -432,7 +466,6 @@
     createDuplas();
   }
 
-  // FUNCIONES - MODAL DE CONFIRMACIÓN
   function showConfirmModal(message, callback) {
     $confirmMessage.textContent = message;
     confirmCallback = callback;
@@ -449,7 +482,6 @@
     closeConfirmModal();
   });
 
-  // FUNCIONES - MODAL DE ALERTA
   function showAlertModal(message) {
     $alertMessage.textContent = message;
     $alertOverlay.style.display = "flex";
@@ -510,16 +542,13 @@
         const file = e.target.files[0];
         if (file && file.type.startsWith("image/")) {
           const compressedBase64 = await compressImage(file);
-
           const existingPreview = imgLabel.querySelector(".preview");
           if (existingPreview) existingPreview.remove();
-
           const previewImg = document.createElement("img");
           previewImg.src = compressedBase64;
           previewImg.alt = "Preview";
           previewImg.className = "preview";
           imgLabel.appendChild(previewImg);
-
           uploadIcon.style.display = "none";
           imgInput.dataset.compressedImage = compressedBase64;
           delete imgInput.dataset.existingImage;
@@ -529,12 +558,9 @@
   }
 
   function initializeDuplasHandler() {
-    if ($duplasContainer.children.length === 0) {
-      createDuplas();
-    }
+    if ($duplasContainer.children.length === 0) createDuplas();
   }
 
-  // FUNCIONES - EDICIÓN DE CAMPAÑA
   function handleEditCampaign(event) {
     const campaign = event.detail;
     editingCampaignId = campaign.id;
@@ -544,7 +570,6 @@
     $startDateInput.value = campaign.start_date;
     $phoneNumberInput.value = campaign.phone_number;
 
-    // Si la campaña tiene audio guardado, cargarlo en el preview
     if (campaign.audio_url) {
       currentAudioBase64 = campaign.audio_url;
       $audioFilename.textContent = "Audio cargado ✓";
@@ -556,7 +581,7 @@
     $modalOverlay.style.display = "flex";
   }
 
-  // FUNCIONES - GUARDADO Y VALIDACIÓN
+  // FUNCIONES - GUARDADO
   async function saveCampaign() {
     const cityName = normalizeCityName($cityNameInput.value);
     const startDate = $startDateInput.value;
@@ -566,12 +591,10 @@
       showAlertModal("Por favor ingresa el nombre de la ciudad");
       return;
     }
-
     if (!startDate) {
       showAlertModal("Por favor selecciona la fecha de inicio");
       return;
     }
-
     if (!phoneNumber || !/^\d{4}$/.test(phoneNumber)) {
       showAlertModal("Por favor ingresa los últimos 4 dígitos del número");
       return;
@@ -605,7 +628,6 @@
 
       if (hasCompressedImage || hasNewFile || hasExistingImage || hasText) {
         let imgBase64 = null;
-
         if (hasCompressedImage) {
           imgBase64 = imgInput.dataset.compressedImage;
         } else if (hasNewFile) {
@@ -615,7 +637,6 @@
         } else if (!isDupla1) {
           continue;
         }
-
         if (imgBase64) {
           duplas.push({
             name: duplaName,
@@ -644,7 +665,6 @@
       '<div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>';
 
     let success = false;
-
     if (editingCampaignId) {
       success = await updateCampaign(editingCampaignId, campaignData);
     } else {
@@ -663,14 +683,111 @@
     }
   }
 
-  // FUNCIONES - UTILIDADES
+  // FUNCIONES - CONVERSIÓN DE AUDIO
 
-  function normalizeCityName(name) {
-    return name
-      .trim()
-      .toUpperCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+  /**
+   * Convierte cualquier archivo de audio a MP3 usando Web Audio API + lamejs.
+   * Proceso:
+   * 1. Decodifica el audio original (ogg, wav, etc.) con el navegador
+   * 2. Toma los samples del canal izquierdo (o mono)
+   * 3. Los codifica a MP3 con lamejs
+   * 4. Devuelve el resultado como base64
+   */
+  async function convertToMp3(file) {
+    // Cargar lamejs dinámicamente desde CDN
+    await loadScript(
+      "https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js",
+    );
+
+    // Decodificar el audio original con Web Audio API
+    const arrayBuffer = await file.arrayBuffer();
+    const audioCtx = new AudioContext();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    await audioCtx.close();
+
+    const sampleRate = audioBuffer.sampleRate;
+    const channels = audioBuffer.numberOfChannels;
+
+    // Obtener samples del canal izquierdo (o el único canal si es mono)
+    // Los samples vienen como Float32 (-1 a 1), lamejs necesita Int16 (-32768 a 32767)
+    const leftChannel = audioBuffer.getChannelData(0);
+    const rightChannel =
+      channels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
+
+    const leftInt16 = floatTo16BitPCM(leftChannel);
+    const rightInt16 = floatTo16BitPCM(rightChannel);
+
+    // Configurar el encoder MP3 (128kbps, buena calidad para voz)
+    const mp3encoder = new lamejs.Mp3Encoder(
+      channels > 1 ? 2 : 1,
+      sampleRate,
+      128,
+    );
+
+    const mp3Data = [];
+    const blockSize = 1152; // Tamaño de bloque requerido por lamejs
+
+    // Codificar en bloques
+    for (let i = 0; i < leftInt16.length; i += blockSize) {
+      const leftChunk = leftInt16.subarray(i, i + blockSize);
+      const rightChunk = rightInt16.subarray(i, i + blockSize);
+      const mp3buf =
+        channels > 1
+          ? mp3encoder.encodeBuffer(leftChunk, rightChunk)
+          : mp3encoder.encodeBuffer(leftChunk);
+      if (mp3buf.length > 0) mp3Data.push(mp3buf);
+    }
+
+    // Vaciar el buffer final del encoder
+    const mp3buf = mp3encoder.flush();
+    if (mp3buf.length > 0) mp3Data.push(mp3buf);
+
+    // Unir todos los bloques en un solo Uint8Array y convertir a base64
+    const totalLength = mp3Data.reduce((acc, buf) => acc + buf.length, 0);
+    const merged = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const buf of mp3Data) {
+      merged.set(buf, offset);
+      offset += buf.length;
+    }
+
+    return uint8ArrayToBase64(merged, "audio/mpeg");
+  }
+
+  // Convierte Float32Array (-1 a 1) a Int16Array (-32768 a 32767)
+  function floatTo16BitPCM(float32Array) {
+    const int16 = new Int16Array(float32Array.length);
+    for (let i = 0; i < float32Array.length; i++) {
+      const clamped = Math.max(-1, Math.min(1, float32Array[i]));
+      int16[i] = clamped < 0 ? clamped * 32768 : clamped * 32767;
+    }
+    return int16;
+  }
+
+  // Convierte Uint8Array a base64 data URL
+  function uint8ArrayToBase64(uint8Array, mimeType) {
+    let binary = "";
+    const chunkSize = 8192;
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.subarray(i, i + chunkSize);
+      binary += String.fromCharCode(...chunk);
+    }
+    return `data:${mimeType};base64,` + btoa(binary);
+  }
+
+  // Carga un script externo dinámicamente (solo una vez)
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) {
+        resolve();
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
   }
 
   // Convierte cualquier archivo a base64
@@ -683,22 +800,26 @@
     });
   }
 
-  // Comprime imágenes antes de guardar
+  // FUNCIONES - UTILIDADES
+  function normalizeCityName(name) {
+    return name
+      .trim()
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
   async function compressImage(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-
       reader.onload = (e) => {
         const img = new Image();
-
         img.onload = () => {
           const MAX_WIDTH = 800;
           const MAX_HEIGHT = 800;
           const QUALITY = 0.7;
-
           let width = img.width;
           let height = img.height;
-
           if (width > height) {
             if (width > MAX_WIDTH) {
               height = Math.round((height * MAX_WIDTH) / width);
@@ -710,22 +831,16 @@
               height = MAX_HEIGHT;
             }
           }
-
           const canvas = document.createElement("canvas");
           canvas.width = width;
           canvas.height = height;
-
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
-
-          const compressedBase64 = canvas.toDataURL("image/jpeg", QUALITY);
-          resolve(compressedBase64);
+          resolve(canvas.toDataURL("image/jpeg", QUALITY));
         };
-
         img.onerror = reject;
         img.src = e.target.result;
       };
-
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
