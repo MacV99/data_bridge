@@ -557,7 +557,6 @@ import CreateCity from "../components/create_city.astro";
   }
 
   function openCampaignModal(campaign) {
-    // El bloque de audio usa la misma clase .bloque que las duplas
     const audioBlock = campaign.audio_url
       ? `
         <div class="bloque">
@@ -698,6 +697,7 @@ import CreateCity from "../components/create_city.astro";
       });
     });
 
+    // Descarga del audio — convierte "mpeg" a "mp3" en el nombre del archivo
     $detailOverlay
       .querySelector(".download-audio-btn")
       ?.addEventListener("click", (e) => {
@@ -705,7 +705,8 @@ import CreateCity from "../components/create_city.astro";
         const city = e.currentTarget.dataset.city;
         const date = e.currentTarget.dataset.date;
         const mimeMatch = audioData.match(/data:audio\/([a-zA-Z0-9]+);base64/);
-        const ext = mimeMatch ? mimeMatch[1] : "ogg";
+        const rawExt = mimeMatch ? mimeMatch[1] : "ogg";
+        const ext = rawExt === "mpeg" ? "mp3" : rawExt;
         downloadFile(audioData, `${date}-${city}-audio.${ext}`);
       });
 
