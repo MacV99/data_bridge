@@ -27,6 +27,7 @@ export async function createCampaign(campaignData) {
       city_name: campaignData.cityName,
       start_date: campaignData.startDate,
       phone_number: campaignData.phoneNumber,
+      audio_url: campaignData.audioUrl || null,
       status: 'pendiente'
     })
     .select()
@@ -66,7 +67,8 @@ export async function updateCampaign(campaignId, campaignData) {
     .update({
       city_name: campaignData.cityName,
       start_date: campaignData.startDate,
-      phone_number: campaignData.phoneNumber
+      phone_number: campaignData.phoneNumber,
+      audio_url: campaignData.audioUrl || null,
     })
     .eq('id', campaignId);
 

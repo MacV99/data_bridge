@@ -29,6 +29,23 @@
 
     <div id="duplas-container" class="flex-column"></div>
 
+    <!-- SECCIÓN DE AUDIO -->
+    <div id="audio-section" class="flex-column">
+      <h6 class="audio-section-title">AUDIO</h6>
+
+      <label class="audio-label flex-row" for="campaign-audio">
+        <i class="bi bi-mic-fill"></i>
+        <span id="audio-filename">Cargar audio (.ogg, .mp3...)</span>
+        <input
+          type="file"
+          id="campaign-audio"
+          accept=".ogg,.mp3,.wav,.m4a,audio/*"
+        />
+      </label>
+
+      <audio id="audio-preview" controls></audio>
+    </div>
+
     <hr />
 
     <div class="buttons flex-row">
@@ -117,8 +134,67 @@
     width: 100%;
   }
 
+  /* === SECCIÓN DE AUDIO === */
+  #audio-section {
+    width: 100%;
+    gap: 5px;
+    padding: 7px 10px;
+    align-items: flex-start;
+    margin-top: -5px;
+  }
+
+  .audio-section-title {
+    color: var(--clr-main);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  /* El label actúa como botón para abrir el selector de archivos */
+  .audio-label {
+    width: 100%;
+    gap: 10px;
+    padding: 10px 14px;
+    background-color: var(--clr-dark2);
+    border: solid 1px var(--clr-border);
+    cursor: pointer;
+    transition: var(--transition);
+    justify-content: flex-start;
+    border-radius: var(--border-radius);
+  }
+
+  .audio-label .bi-mic-fill {
+    font-size: 1.1rem;
+    color: var(--clr-main);
+    flex-shrink: 0;
+  }
+
+  .audio-label span {
+    font-size: 0.8rem;
+    color: var(--clr-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: none;
+  }
+
+  /* El input file está oculto, el label lo activa */
+  .audio-label input[type="file"] {
+    display: none;
+  }
+
+  /* Reproductor nativo — se muestra solo cuando hay audio */
+  #audio-preview {
+    width: 100%;
+    display: none;
+    height: 36px;
+  }
+
   @media (hover: hover) {
     #modal-add-city .close:hover {
+      background-color: var(--clr-border);
+    }
+
+    .audio-label:hover {
       background-color: var(--clr-border);
     }
   }
@@ -158,7 +234,7 @@
     width: 100%;
     background-color: var(--clr-dark);
     padding: 7px 10px;
-    gap: 7px;
+    gap: 5px;
     position: relative;
   }
 
@@ -268,6 +344,14 @@
   const $phoneNumberInput = document.getElementById("phone-number");
   const $modalTitle = document.getElementById("modal-title");
 
+  // Referencias del audio
+  const $audioInput = document.getElementById("campaign-audio");
+  const $audioPreview = document.getElementById("audio-preview");
+  const $audioFilename = document.getElementById("audio-filename");
+
+  // Guarda el audio en memoria entre operaciones
+  let currentAudioBase64 = null;
+
   // Modales de confirmación y alerta
   const $confirmOverlay = document.getElementById("modal-confirm-overlay");
   const $confirmMessage = document.getElementById("confirm-message");
@@ -286,6 +370,18 @@
     $phoneNumberInput.value = $phoneNumberInput.value.replace(/\D/g, "");
   });
 
+  // Cuando se selecciona un archivo de audio: preview + convertir a base64
+  $audioInput?.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    $audioFilename.textContent = file.name;
+    currentAudioBase64 = await fileToBase64(file);
+
+    $audioPreview.src = currentAudioBase64;
+    $audioPreview.style.display = "block";
+  });
+
   // EVENT LISTENERS
   $closeModal?.addEventListener("click", closeModal);
   $cancelButton?.addEventListener("click", closeModal);
@@ -293,7 +389,6 @@
   window.addEventListener("initializeDuplas", initializeDuplasHandler);
   window.addEventListener("editCampaign", handleEditCampaign);
 
-  // Cerrar modales con ESC y click en overlay
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeModal();
@@ -318,7 +413,6 @@
   $alertOk?.addEventListener("click", closeAlertModal);
 
   // FUNCIONES - MODAL PRINCIPAL
-
   function closeModal() {
     $modalOverlay.style.display = "none";
     resetForm();
@@ -326,10 +420,15 @@
 
   function resetForm() {
     editingCampaignId = null;
+    currentAudioBase64 = null;
     $modalTitle.textContent = "Nueva Campaña";
     $cityNameInput.value = "";
     $startDateInput.value = "";
     $phoneNumberInput.value = "";
+    $audioInput.value = "";
+    $audioFilename.textContent = "Cargar audio (.ogg, .mp3...)";
+    $audioPreview.src = "";
+    $audioPreview.style.display = "none";
     createDuplas();
   }
 
@@ -393,12 +492,10 @@
 
       $duplasContainer.appendChild(duplaBlock);
 
-      // Referencias
       const imgInput = duplaBlock.querySelector(".dupla-img");
       const imgLabel = duplaBlock.querySelector(".image-label");
       const uploadIcon = imgLabel.querySelector(".bi-upload");
 
-      // Si hay imagen existente, mostrarla
       if (existingImage) {
         imgInput.dataset.existingImage = existingImage;
         const previewImg = document.createElement("img");
@@ -409,7 +506,6 @@
         uploadIcon.style.display = "none";
       }
 
-      // Event listener para preview de imagen
       imgInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith("image/")) {
@@ -448,8 +544,15 @@
     $startDateInput.value = campaign.start_date;
     $phoneNumberInput.value = campaign.phone_number;
 
-    createDuplas(campaign.duplas);
+    // Si la campaña tiene audio guardado, cargarlo en el preview
+    if (campaign.audio_url) {
+      currentAudioBase64 = campaign.audio_url;
+      $audioFilename.textContent = "Audio cargado ✓";
+      $audioPreview.src = campaign.audio_url;
+      $audioPreview.style.display = "block";
+    }
 
+    createDuplas(campaign.duplas);
     $modalOverlay.style.display = "flex";
   }
 
@@ -528,7 +631,13 @@
       return;
     }
 
-    const campaignData = { cityName, startDate, phoneNumber, duplas };
+    const campaignData = {
+      cityName,
+      startDate,
+      phoneNumber,
+      duplas,
+      audioUrl: currentAudioBase64 || null,
+    };
 
     $saveButton.disabled = true;
     $saveButton.innerHTML =
@@ -555,6 +664,7 @@
   }
 
   // FUNCIONES - UTILIDADES
+
   function normalizeCityName(name) {
     return name
       .trim()
@@ -563,6 +673,17 @@
       .replace(/[\u0300-\u036f]/g, "");
   }
 
+  // Convierte cualquier archivo a base64
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Comprime imágenes antes de guardar
   async function compressImage(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

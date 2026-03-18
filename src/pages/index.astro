@@ -149,6 +149,7 @@ import CreateCity from "../components/create_city.astro";
     transition: opacity 0.2s;
   }
 
+  /* === BLOQUES DE DUPLAS (reutilizado también para audio) === */
   .bloque {
     padding: 5px;
     width: 100%;
@@ -223,6 +224,33 @@ import CreateCity from "../components/create_city.astro";
     justify-content: center;
   }
 
+  /* === AUDIO DENTRO DEL BLOQUE === */
+  .bloque-audio-content {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bloque-audio-content audio {
+    flex: 1;
+    height: 36px;
+    min-width: 0;
+  }
+
+  .download-audio-btn {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    gap: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  /* === MODAL DE DETALLE === */
   .campaign-detail-modal {
     background-color: var(--clr-dark);
     border: solid 1px var(--clr-border);
@@ -383,7 +411,6 @@ import CreateCity from "../components/create_city.astro";
 
   let allCampaigns = [];
 
-  // Cargar campañas al inicio
   document.addEventListener("DOMContentLoaded", async () => {
     $loadingInitial.style.display = "flex";
     await loadCampaigns();
@@ -391,18 +418,15 @@ import CreateCity from "../components/create_city.astro";
     $loadingInitial.style.display = "none";
   });
 
-  // Recargar cuando se agrega/edita una campaña
   window.addEventListener("campaignAdded", async () => {
     await loadCampaigns();
     renderCampaigns();
   });
 
-  // Carga todas las campañas una sola vez
   async function loadCampaigns() {
     allCampaigns = await getCampaigns();
   }
 
-  // Renderiza todas las campañas separadas por estado
   function renderCampaigns() {
     if (allCampaigns.length === 0) {
       $dashboard.innerHTML = `
@@ -444,7 +468,6 @@ import CreateCity from "../components/create_city.astro";
     addEventListeners();
   }
 
-  // Renderiza una tarjeta de campaña
   function renderCampaignCard(campaign) {
     return `
       <div class="campaign-card flex-column" data-id="${campaign.id}" data-status="${campaign.status}">
@@ -457,14 +480,12 @@ import CreateCity from "../components/create_city.astro";
     `;
   }
 
-  // Agrega todos los event listeners dinámicos
   function addEventListeners() {
     addCopyClickListener();
     addCardClickListener();
     addCityNameCopyListener();
   }
 
-  // Permite copiar texto al hacer click en elementos con [data-copy]
   function addCopyClickListener() {
     document.querySelectorAll("[data-copy]").forEach((element) => {
       element.addEventListener("click", (e) => {
@@ -479,7 +500,6 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  // Copia el nombre de la ciudad al hacer clic en el h5
   function addCityNameCopyListener() {
     document.querySelectorAll(".copy-city-name").forEach((element) => {
       element.addEventListener("click", (e) => {
@@ -495,14 +515,12 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  // Abre el modal de detalles al hacer click en la tarjeta
   async function addCardClickListener() {
     document
       .querySelectorAll(".campaign-header.clickable")
       .forEach((header) => {
         header.addEventListener("click", async (e) => {
           if (e.target.classList.contains("copy-city-name")) return;
-
           const card = e.currentTarget.closest(".campaign-card");
           const id = parseInt(card.dataset.id);
           const campaign = allCampaigns.find((c) => c.id === id);
@@ -511,15 +529,13 @@ import CreateCity from "../components/create_city.astro";
       });
   }
 
-  // Descarga una imagen
-  function downloadImage(dataUrl, fileName, date) {
+  function downloadFile(dataUrl, fileName) {
     const link = document.createElement("a");
     link.href = dataUrl;
-    link.download = `${date}-${fileName}.png`;
+    link.download = fileName;
     link.click();
   }
 
-  // Elimina una campaña de la base de datos
   async function deleteCampaignHandler(id) {
     const success = await deleteCampaign(id);
     if (success) {
@@ -530,7 +546,6 @@ import CreateCity from "../components/create_city.astro";
     }
   }
 
-  // Cambia el estado de una campaña
   async function changeCampaignStatus(id, newStatus) {
     const success = await updateCampaignStatus(id, newStatus);
     if (success) {
@@ -541,8 +556,22 @@ import CreateCity from "../components/create_city.astro";
     }
   }
 
-  // Abre modal con detalles completos de una campaña
   function openCampaignModal(campaign) {
+    // El bloque de audio usa la misma clase .bloque que las duplas
+    const audioBlock = campaign.audio_url
+      ? `
+        <div class="bloque">
+          <h6>AUDIO</h6>
+          <div class="bloque-audio-content">
+            <audio controls src="${campaign.audio_url}"></audio>
+            <button class="boton download-audio-btn" data-audio="${campaign.audio_url}" data-city="${campaign.city_name}" data-date="${formatDate(campaign.start_date)}">
+              <i class="bi bi-download"></i> Descargar
+            </button>
+          </div>
+        </div>
+      `
+      : "";
+
     const modalHtml = `
       <div class="modal-overlay" id="campaign-detail-overlay" style="display: flex; z-index: 50;">
         <i class="bi bi-x-lg close-campaign-modal" style="position: fixed; top: 20px; right: 20px; cursor: pointer; font-size: 20px; background-color: var(--clr-dark); border: solid 1px var(--clr-border); padding: 7px; z-index: 100;"></i>
@@ -578,6 +607,7 @@ import CreateCity from "../components/create_city.astro";
             `,
               )
               .join("")}
+            ${audioBlock}
           </div>
           <hr />
           <div class="campaign-status-switcher-modal">
@@ -664,9 +694,20 @@ import CreateCity from "../components/create_city.astro";
         const imgData = e.currentTarget.dataset.img;
         const fileName = e.currentTarget.dataset.name;
         const date = e.currentTarget.dataset.date;
-        downloadImage(imgData, fileName, date);
+        downloadFile(imgData, `${date}-${fileName}.png`);
       });
     });
+
+    $detailOverlay
+      .querySelector(".download-audio-btn")
+      ?.addEventListener("click", (e) => {
+        const audioData = e.currentTarget.dataset.audio;
+        const city = e.currentTarget.dataset.city;
+        const date = e.currentTarget.dataset.date;
+        const mimeMatch = audioData.match(/data:audio\/([a-zA-Z0-9]+);base64/);
+        const ext = mimeMatch ? mimeMatch[1] : "ogg";
+        downloadFile(audioData, `${date}-${city}-audio.${ext}`);
+      });
 
     $detailOverlay
       .querySelectorAll(".campaign-status-switcher-modal .status-btn")
@@ -680,19 +721,16 @@ import CreateCity from "../components/create_city.astro";
       });
   }
 
-  // Formatea una fecha de YYYY-MM-DD a DD/MM/YYYY
   function formatDate(dateString) {
     const [year, month, day] = dateString.split("-");
     return `${day}/${month}/${year}`;
   }
 
-  // Genera nombre de archivo para descargas
   function getImageFileName(cityName, duplaIndex) {
     const suffix = duplaIndex === 0 ? "1" : "5";
     return `${cityName}${suffix}`;
   }
 
-  // Escapa caracteres especiales de HTML
   function escapeHtml(text) {
     return text
       .replace(/&/g, "&amp;")
