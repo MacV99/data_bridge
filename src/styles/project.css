@@ -1,3 +1,10 @@
+.copy-city-name,
+.copy-date,
+.copy-phone-number,
+[data-copy] {
+  cursor: pointer;
+}
+
 /* === MODAL OVERLAY === */
 .modal-overlay {
   display: none;

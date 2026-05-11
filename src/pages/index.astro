@@ -538,8 +538,8 @@ import CreateCity from "../components/create_city.astro";
         ${checkIcon}
         <div class="campaign-header${selectMode ? "" : " clickable"}">
           <h5 class="${selectMode ? "" : "copy-city-name"}" data-city="${campaign.city_name}">${campaign.city_name}</h5>
-          <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.start_date)}</p>
-          <p><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
+          <p class="${selectMode ? "" : "copy-date"}" data-date="${formatDate(campaign.start_date)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.start_date)}</p>
+          <p class="${selectMode ? "" : "copy-phone-number"}" data-phone="${campaign.phone_number}"><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
         </div>
       </div>
     `;
@@ -549,6 +549,8 @@ import CreateCity from "../components/create_city.astro";
     addCopyClickListener();
     addCardClickListener();
     addCityNameCopyListener();
+    addDateCopyListener();
+    addPhoneNumberCopyListener();
     addSelectionListeners();
   }
 
@@ -622,10 +624,38 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
+  function addDateCopyListener() {
+    document.querySelectorAll(".copy-date").forEach((element) => {
+      element.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const date = e.currentTarget.dataset.date;
+        navigator.clipboard.writeText(date).then(() => {
+          e.currentTarget.style.opacity = "0.5";
+          setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 300);
+        });
+      });
+    });
+  }
+
+  function addPhoneNumberCopyListener() {
+    document.querySelectorAll(".copy-phone-number").forEach((element) => {
+      element.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const phone = e.currentTarget.dataset.phone;
+        navigator.clipboard.writeText(phone).then(() => {
+          e.currentTarget.style.opacity = "0.5";
+          setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 300);
+        });
+      });
+    });
+  }
+
   async function addCardClickListener() {
     document.querySelectorAll(".campaign-header.clickable").forEach((header) => {
       header.addEventListener("click", async (e) => {
         if (e.target.classList.contains("copy-city-name")) return;
+        if (e.target.classList.contains("copy-date")) return;
+        if (e.target.classList.contains("copy-phone-number")) return;
         const card = e.currentTarget.closest(".campaign-card");
         const id = parseInt(card.dataset.id);
         const campaign = allCampaigns.find((c) => c.id === id);
@@ -723,7 +753,7 @@ import CreateCity from "../components/create_city.astro";
               </div>
             </div>
             <p data-copy="${formatDate(campaign.start_date)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.start_date)}</p>
-            <p><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
+            <p data-copy="${campaign.phone_number}"><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
           </div>
           <hr />
           <div class="duplas-detail">
