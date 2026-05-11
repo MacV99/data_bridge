@@ -548,9 +548,7 @@ import CreateCity from "../components/create_city.astro";
   function addEventListeners() {
     addCopyClickListener();
     addCardClickListener();
-    addCityNameCopyListener();
-    addDateCopyListener();
-    addPhoneNumberCopyListener();
+    addCardFieldCopyListeners();
     addSelectionListeners();
   }
 
@@ -611,40 +609,20 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  function addCityNameCopyListener() {
-    document.querySelectorAll(".copy-city-name").forEach((element) => {
-      element.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const cityName = e.currentTarget.dataset.city;
-        navigator.clipboard.writeText(cityName).then(() => {
-          e.currentTarget.style.opacity = "0.5";
-          setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 300);
-        });
-      });
-    });
-  }
-
-  function addDateCopyListener() {
-    document.querySelectorAll(".copy-date").forEach((element) => {
-      element.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const date = e.currentTarget.dataset.date;
-        navigator.clipboard.writeText(date).then(() => {
-          e.currentTarget.style.opacity = "0.5";
-          setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 300);
-        });
-      });
-    });
-  }
-
-  function addPhoneNumberCopyListener() {
-    document.querySelectorAll(".copy-phone-number").forEach((element) => {
-      element.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const phone = e.currentTarget.dataset.phone;
-        navigator.clipboard.writeText(phone).then(() => {
-          e.currentTarget.style.opacity = "0.5";
-          setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 300);
+  function addCardFieldCopyListeners() {
+    const fields = [
+      { selector: ".copy-city-name", key: "city" },
+      { selector: ".copy-date",      key: "date" },
+      { selector: ".copy-phone-number", key: "phone" },
+    ];
+    fields.forEach(({ selector, key }) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(e.currentTarget.dataset[key]).then(() => {
+            e.currentTarget.style.opacity = "0.5";
+            setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 300);
+          });
         });
       });
     });
@@ -653,9 +631,7 @@ import CreateCity from "../components/create_city.astro";
   async function addCardClickListener() {
     document.querySelectorAll(".campaign-header.clickable").forEach((header) => {
       header.addEventListener("click", async (e) => {
-        if (e.target.classList.contains("copy-city-name")) return;
-        if (e.target.classList.contains("copy-date")) return;
-        if (e.target.classList.contains("copy-phone-number")) return;
+        if (e.target.dataset.city || e.target.dataset.date || e.target.dataset.phone) return;
         const card = e.currentTarget.closest(".campaign-card");
         const id = parseInt(card.dataset.id);
         const campaign = allCampaigns.find((c) => c.id === id);
