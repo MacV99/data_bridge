@@ -29,7 +29,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--clr-primary);
+  background: var(--clr-accent);
 }
 
 /* === ESTADOS DE CARGA === */
@@ -48,7 +48,7 @@
 
 .spinner {
   border: 3px solid var(--clr-border);
-  border-top: 3px solid var(--clr-primary);
+  border-top: 3px solid var(--clr-accent);
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -106,7 +106,7 @@
 }
 
 .filter-icon.active {
-  color: var(--clr-primary);
+  color: var(--clr-accent);
 }
 
 /* === DROPDOWN === */
@@ -152,7 +152,7 @@
 }
 
 .dropdown-item.active {
-  color: var(--clr-primary);
+  color: var(--clr-accent);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {

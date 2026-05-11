@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-  /* Colores principales */
-  --clr-main: #f39252;
+  /* Colores principales — cambiar --clr-accent para retemear */
+  --clr-accent: #b2c8f4;
   --clr-dark: #101010;
   --clr-dark2: #161616;
   --clr-gray: #646464;
@@ -121,7 +121,7 @@ button,
   text-transform: uppercase;
   border: solid 1px var(--clr-border);
   background-color: var(--clr-dark2);
-  color: var(--clr-main);
+  color: var(--clr-accent);
   display: flex;
   align-items: center;
   justify-content: center;

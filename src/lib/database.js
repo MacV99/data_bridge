@@ -2,17 +2,23 @@ import { supabase } from './supabase.js';
 
 // Obtener todas las campañas
 export async function getCampaigns() {
-  const { data, error } = await supabase
-    .from('campaigns')
-    .select(`
-      *,
-      duplas (*)
-    `)
-    .order('created_at', { ascending: false });
+  const run = () =>
+    supabase
+      .from('campaigns')
+      .select('*, duplas(*)')
+      .order('created_at', { ascending: false });
+
+  let { data, error } = await run();
+
+  if (error) {
+    // Reintento único — maneja el cold-start de Supabase en plan gratuito
+    await new Promise((r) => setTimeout(r, 2500));
+    ({ data, error } = await run());
+  }
 
   if (error) {
     console.error('Error al obtener campañas:', error);
-    return [];
+    return null;
   }
 
   return data || [];

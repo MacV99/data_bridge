@@ -8,6 +8,18 @@ import CreateCity from "../components/create_city.astro";
   <Header />
   <CreateCity />
 
+  <!-- MODAL DE ERROR DE CONEXIÓN -->
+  <div id="error-overlay" class="modal-overlay" style="z-index: 10000;">
+    <div class="error-modal flex-column">
+      <i class="bi bi-wifi-off" style="font-size: 2.5rem; color: var(--clr-gray);"></i>
+      <h4>Error de conexión</h4>
+      <p style="text-align:center; font-size: 0.9rem;">No se pudo conectar con la base de datos.<br/>Verifica tu conexión e intenta de nuevo.</p>
+      <button class="boton" onclick="location.reload()">
+        <i class="bi bi-arrow-clockwise"></i> Recargar
+      </button>
+    </div>
+  </div>
+
   <!-- OVERLAY DE CARGA INICIAL -->
   <div id="loading-initial" class="loading-overlay">
     <div class="flex-column" style="gap: 15px;">
@@ -61,7 +73,7 @@ import CreateCity from "../components/create_city.astro";
   }
 
   .header-section h2 {
-    color: var(--clr-main);
+    color: var(--clr-accent);
     font-size: 1.3rem;
     display: flex;
     align-items: center;
@@ -102,15 +114,16 @@ import CreateCity from "../components/create_city.astro";
     gap: 10px;
     justify-content: flex-start;
     overflow-y: auto;
+    overflow-x: hidden;
     height: 100%;
     flex: 1;
   }
 
   .campaign-card {
     background-color: var(--clr-dark2);
-    padding: 10px 15px;
+    padding: 16px 20px;
     width: 100%;
-    gap: 5px;
+    gap: 7px;
     position: relative;
     border: solid 1px var(--clr-border);
     text-align: left;
@@ -128,7 +141,7 @@ import CreateCity from "../components/create_city.astro";
   }
 
   .campaign-header h5 {
-    color: var(--clr-main);
+    color: var(--clr-accent);
     font-size: 1.1rem;
     margin: 0;
     cursor: pointer;
@@ -151,7 +164,7 @@ import CreateCity from "../components/create_city.astro";
 
   /* === BLOQUES DE DUPLAS (reutilizado también para audio) === */
   .bloque {
-    padding: 5px;
+    padding: 12px;
     width: 100%;
     gap: 10px;
     background-color: var(--clr-dark);
@@ -162,7 +175,7 @@ import CreateCity from "../components/create_city.astro";
 
   .bloque h6 {
     width: 100%;
-    color: var(--clr-main);
+    color: var(--clr-accent);
     font-size: 0.8rem;
     text-align: left;
     font-weight: 600;
@@ -258,6 +271,7 @@ import CreateCity from "../components/create_city.astro";
     max-width: 90%;
     max-height: 85vh;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 15px 20px;
     scroll-behavior: smooth;
     position: relative;
@@ -283,7 +297,7 @@ import CreateCity from "../components/create_city.astro";
   }
 
   .campaign-detail-modal .campaign-header h5 {
-    color: var(--clr-main);
+    color: var(--clr-accent);
     font-size: 1.1rem;
     cursor: pointer;
     margin: 0;
@@ -342,13 +356,27 @@ import CreateCity from "../components/create_city.astro";
   }
 
   .status-btn.active {
-    background-color: var(--clr-main);
+    background-color: var(--clr-accent);
     color: var(--clr-dark);
-    border-color: var(--clr-main);
+    border-color: var(--clr-accent);
   }
 
   .empty-text {
     color: var(--clr-gray);
+  }
+
+  .error-modal {
+    background-color: var(--clr-dark);
+    border: solid 1px var(--clr-border);
+    padding: 35px 30px;
+    gap: 14px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .error-modal h4 {
+    color: var(--clr-white);
   }
 
   .empty-state {
@@ -376,7 +404,7 @@ import CreateCity from "../components/create_city.astro";
     }
 
     .header-actions i:hover {
-      color: var(--clr-main);
+      color: var(--clr-accent);
       background-color: var(--clr-border);
     }
 
@@ -393,7 +421,7 @@ import CreateCity from "../components/create_city.astro";
     }
 
     .status-btn.active:hover {
-      background-color: var(--clr-main);
+      background-color: var(--clr-accent);
     }
   }
 </style>
@@ -408,23 +436,39 @@ import CreateCity from "../components/create_city.astro";
 
   const $dashboard = document.getElementById("dashboard");
   const $loadingInitial = document.getElementById("loading-initial");
+  const $errorOverlay = document.getElementById("error-overlay");
 
   let allCampaigns = [];
+  let montadaSelectMode = false;
+  let selectedMontadaIds = new Set();
 
   document.addEventListener("DOMContentLoaded", async () => {
     $loadingInitial.style.display = "flex";
-    await loadCampaigns();
-    renderCampaigns();
-    $loadingInitial.style.display = "none";
+    try {
+      const ok = await loadCampaigns();
+      if (ok) renderCampaigns();
+    } finally {
+      $loadingInitial.style.display = "none";
+    }
   });
 
   window.addEventListener("campaignAdded", async () => {
-    await loadCampaigns();
+    const ok = await loadCampaigns();
+    if (!ok) return;
+    montadaSelectMode = false;
+    selectedMontadaIds.clear();
     renderCampaigns();
   });
 
   async function loadCampaigns() {
-    allCampaigns = await getCampaigns();
+    const result = await getCampaigns();
+    if (result === null) {
+      $errorOverlay.style.display = "flex";
+      return false;
+    }
+    $errorOverlay.style.display = "none";
+    allCampaigns = result;
+    return true;
   }
 
   function renderCampaigns() {
@@ -442,6 +486,11 @@ import CreateCity from "../components/create_city.astro";
     const pendientes = allCampaigns.filter((c) => c.status === "pendiente");
     const montadas = allCampaigns.filter((c) => c.status === "montada");
 
+    // Remove stale selections (campaign moved away from montadas)
+    for (const id of selectedMontadaIds) {
+      if (!montadas.find((c) => c.id === id)) selectedMontadaIds.delete(id);
+    }
+
     const $pendienteDiv = document.getElementById("pendiente");
     const $montadaDiv = document.getElementById("montada");
 
@@ -451,28 +500,43 @@ import CreateCity from "../components/create_city.astro";
       </div>
       <div class="campaigns-container flex-column">
         ${pendientes.length === 0 ? '<p class="empty-text">Sin campañas pendientes</p>' : ""}
-        ${pendientes.map((campaign) => renderCampaignCard(campaign)).join("")}
+        ${pendientes.map((c) => renderCampaignCard(c)).join("")}
       </div>
     `;
 
+    const selectControls = montadaSelectMode
+      ? `<button class="boton2 montada-cancel-select" style="font-size:0.75rem;padding:6px 12px;">Cancelar</button>
+         ${selectedMontadaIds.size > 0 ? `<button class="boton montada-delete-selected" style="font-size:0.75rem;padding:6px 10px;gap:5px;"><i class="bi bi-trash"></i>Eliminar (${selectedMontadaIds.size})</button>` : ""}`
+      : `<i class="bi bi-check2-square montada-select-toggle" title="Seleccionar varias" style="font-size:1.2rem;color:var(--clr-gray);cursor:pointer;padding:4px;transition:var(--transition);"></i>`;
+
     $montadaDiv.innerHTML = `
-      <div class="header-section flex-row">
+      <div class="header-section flex-row" style="gap:8px;">
         <h2>MONTADAS <span class="counter">${montadas.length}</span></h2>
+        <div style="display:flex;gap:5px;align-items:center;">${selectControls}</div>
       </div>
       <div class="campaigns-container flex-column">
         ${montadas.length === 0 ? '<p class="empty-text">Sin campañas montadas</p>' : ""}
-        ${montadas.map((campaign) => renderCampaignCard(campaign)).join("")}
+        ${montadas.map((c) => renderCampaignCard(c, montadaSelectMode)).join("")}
       </div>
     `;
 
     addEventListeners();
   }
 
-  function renderCampaignCard(campaign) {
+  function renderCampaignCard(campaign, selectMode = false) {
+    const isSelected = selectedMontadaIds.has(campaign.id);
+    const selectedStyle = isSelected
+      ? "border-color:var(--clr-accent);opacity:0.9;"
+      : "";
+    const checkIcon = selectMode
+      ? `<i class="bi ${isSelected ? "bi-check-square-fill" : "bi-square"}" style="position:absolute;top:8px;right:8px;font-size:1rem;color:${isSelected ? "var(--clr-accent)" : "var(--clr-gray)"};pointer-events:none;"></i>`
+      : "";
+
     return `
-      <div class="campaign-card flex-column" data-id="${campaign.id}" data-status="${campaign.status}">
-        <div class="campaign-header clickable">
-          <h5 class="copy-city-name" data-city="${campaign.city_name}">${campaign.city_name}</h5>
+      <div class="campaign-card flex-column${selectMode ? " select-mode" : ""}" data-id="${campaign.id}" data-status="${campaign.status}" style="${selectedStyle}">
+        ${checkIcon}
+        <div class="campaign-header${selectMode ? "" : " clickable"}">
+          <h5 class="${selectMode ? "" : "copy-city-name"}" data-city="${campaign.city_name}">${campaign.city_name}</h5>
           <p><i class="bi bi-calendar3"></i> ${formatDate(campaign.start_date)}</p>
           <p><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
         </div>
@@ -484,6 +548,52 @@ import CreateCity from "../components/create_city.astro";
     addCopyClickListener();
     addCardClickListener();
     addCityNameCopyListener();
+    addSelectionListeners();
+  }
+
+  function addSelectionListeners() {
+    document.querySelector(".montada-select-toggle")?.addEventListener("click", () => {
+      montadaSelectMode = true;
+      selectedMontadaIds.clear();
+      renderCampaigns();
+    });
+
+    document.querySelector(".montada-cancel-select")?.addEventListener("click", () => {
+      montadaSelectMode = false;
+      selectedMontadaIds.clear();
+      renderCampaigns();
+    });
+
+    document.querySelector(".montada-delete-selected")?.addEventListener("click", () => {
+      const ids = [...selectedMontadaIds];
+      const $confirmOverlay = document.getElementById("modal-confirm-overlay");
+      const $confirmMessage = document.getElementById("confirm-message");
+      const $confirmYes = document.querySelector(".confirm-yes");
+
+      $confirmMessage.textContent = `¿Eliminar ${ids.length} campaña${ids.length !== 1 ? "s" : ""}?`;
+      $confirmOverlay.style.display = "flex";
+
+      const handleConfirm = async () => {
+        $confirmOverlay.style.display = "none";
+        $confirmYes.removeEventListener("click", handleConfirm);
+        await deleteManyHandler(ids);
+      };
+      $confirmYes.addEventListener("click", handleConfirm);
+    });
+
+    if (montadaSelectMode) {
+      document.querySelectorAll(".campaign-card.select-mode").forEach((card) => {
+        card.addEventListener("click", () => {
+          const id = parseInt(card.dataset.id);
+          if (selectedMontadaIds.has(id)) {
+            selectedMontadaIds.delete(id);
+          } else {
+            selectedMontadaIds.add(id);
+          }
+          renderCampaigns();
+        });
+      });
+    }
   }
 
   function addCopyClickListener() {
@@ -492,9 +602,7 @@ import CreateCity from "../components/create_city.astro";
         const text = e.currentTarget.dataset.copy;
         navigator.clipboard.writeText(text).then(() => {
           e.currentTarget.style.opacity = "0.7";
-          setTimeout(() => {
-            e.currentTarget.style.opacity = "1";
-          }, 500);
+          setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 500);
         });
       });
     });
@@ -507,26 +615,22 @@ import CreateCity from "../components/create_city.astro";
         const cityName = e.currentTarget.dataset.city;
         navigator.clipboard.writeText(cityName).then(() => {
           e.currentTarget.style.opacity = "0.5";
-          setTimeout(() => {
-            e.currentTarget.style.opacity = "1";
-          }, 300);
+          setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 300);
         });
       });
     });
   }
 
   async function addCardClickListener() {
-    document
-      .querySelectorAll(".campaign-header.clickable")
-      .forEach((header) => {
-        header.addEventListener("click", async (e) => {
-          if (e.target.classList.contains("copy-city-name")) return;
-          const card = e.currentTarget.closest(".campaign-card");
-          const id = parseInt(card.dataset.id);
-          const campaign = allCampaigns.find((c) => c.id === id);
-          if (campaign) openCampaignModal(campaign);
-        });
+    document.querySelectorAll(".campaign-header.clickable").forEach((header) => {
+      header.addEventListener("click", async (e) => {
+        if (e.target.classList.contains("copy-city-name")) return;
+        const card = e.currentTarget.closest(".campaign-card");
+        const id = parseInt(card.dataset.id);
+        const campaign = allCampaigns.find((c) => c.id === id);
+        if (campaign) openCampaignModal(campaign);
       });
+    });
   }
 
   function downloadFile(dataUrl, fileName) {
@@ -537,21 +641,55 @@ import CreateCity from "../components/create_city.astro";
   }
 
   async function deleteCampaignHandler(id) {
+    // Optimistic: remove from memory immediately, sync DB in background
+    const index = allCampaigns.findIndex((c) => c.id === id);
+    if (index === -1) return;
+    const [removed] = allCampaigns.splice(index, 1);
+    renderCampaigns();
+
     const success = await deleteCampaign(id);
-    if (success) {
-      await loadCampaigns();
+    if (!success) {
+      allCampaigns.splice(index, 0, removed);
       renderCampaigns();
-    } else {
       alert("Error al eliminar la campaña");
     }
   }
 
-  async function changeCampaignStatus(id, newStatus) {
-    const success = await updateCampaignStatus(id, newStatus);
-    if (success) {
+  async function deleteManyHandler(ids) {
+    // Optimistic: remove all from memory in reverse index order, then sync DB
+    const removed = ids
+      .map((id) => ({ id, index: allCampaigns.findIndex((c) => c.id === id) }))
+      .filter(({ index }) => index !== -1)
+      .sort((a, b) => b.index - a.index);
+
+    for (const { index } of removed) {
+      allCampaigns.splice(index, 1);
+    }
+    montadaSelectMode = false;
+    selectedMontadaIds.clear();
+    renderCampaigns();
+
+    const results = await Promise.all(ids.map((id) => deleteCampaign(id)));
+    const failed = ids.filter((_, i) => !results[i]);
+    if (failed.length > 0) {
       await loadCampaigns();
       renderCampaigns();
-    } else {
+      alert(`Error al eliminar ${failed.length} campaña${failed.length !== 1 ? "s" : ""}`);
+    }
+  }
+
+  async function changeCampaignStatus(id, newStatus) {
+    // Optimistic: update status in memory immediately, sync DB in background
+    const campaign = allCampaigns.find((c) => c.id === id);
+    if (!campaign) return;
+    const previousStatus = campaign.status;
+    campaign.status = newStatus;
+    renderCampaigns();
+
+    const success = await updateCampaignStatus(id, newStatus);
+    if (!success) {
+      campaign.status = previousStatus;
+      renderCampaigns();
       alert("Error al cambiar el estado");
     }
   }
@@ -654,12 +792,11 @@ import CreateCity from "../components/create_city.astro";
       $confirmOverlay.style.display = "flex";
 
       const handleConfirm = async () => {
-        await deleteCampaignHandler(id);
         closeDetailModal();
         $confirmOverlay.style.display = "none";
         $confirmYes.removeEventListener("click", handleConfirm);
+        await deleteCampaignHandler(id);
       };
-
       $confirmYes.addEventListener("click", handleConfirm);
     });
 
@@ -668,9 +805,7 @@ import CreateCity from "../components/create_city.astro";
         const text = e.currentTarget.dataset.copy;
         navigator.clipboard.writeText(text).then(() => {
           e.currentTarget.style.opacity = "0.7";
-          setTimeout(() => {
-            e.currentTarget.style.opacity = "1";
-          }, 500);
+          setTimeout(() => { e.currentTarget.style.opacity = "1"; }, 500);
         });
       });
     });
@@ -681,9 +816,7 @@ import CreateCity from "../components/create_city.astro";
         navigator.clipboard.writeText(text).then(() => {
           const originalText = e.currentTarget.textContent;
           e.currentTarget.textContent = "✓ Copiado!";
-          setTimeout(() => {
-            e.currentTarget.textContent = originalText;
-          }, 1500);
+          setTimeout(() => { e.currentTarget.textContent = originalText; }, 1500);
         });
       });
     });
@@ -697,29 +830,24 @@ import CreateCity from "../components/create_city.astro";
       });
     });
 
-    // Descarga del audio — convierte "mpeg" a "mp3" en el nombre del archivo
-    $detailOverlay
-      .querySelector(".download-audio-btn")
-      ?.addEventListener("click", (e) => {
-        const audioData = e.currentTarget.dataset.audio;
-        const city = e.currentTarget.dataset.city;
-        const date = e.currentTarget.dataset.date;
-        const mimeMatch = audioData.match(/data:audio\/([a-zA-Z0-9]+);base64/);
-        const rawExt = mimeMatch ? mimeMatch[1] : "ogg";
-        const ext = rawExt === "mpeg" ? "mp3" : rawExt;
-        downloadFile(audioData, `${date}-${city}-audio.${ext}`);
-      });
+    $detailOverlay.querySelector(".download-audio-btn")?.addEventListener("click", (e) => {
+      const audioData = e.currentTarget.dataset.audio;
+      const city = e.currentTarget.dataset.city;
+      const date = e.currentTarget.dataset.date;
+      const mimeMatch = audioData.match(/data:audio\/([a-zA-Z0-9]+);base64/);
+      const rawExt = mimeMatch ? mimeMatch[1] : "ogg";
+      const ext = rawExt === "mpeg" ? "mp3" : rawExt;
+      downloadFile(audioData, `${date}-${city}-audio.${ext}`);
+    });
 
-    $detailOverlay
-      .querySelectorAll(".campaign-status-switcher-modal .status-btn")
-      .forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-          const id = parseInt(e.currentTarget.dataset.id);
-          const newStatus = e.currentTarget.dataset.status;
-          await changeCampaignStatus(id, newStatus);
-          closeDetailModal();
-        });
+    $detailOverlay.querySelectorAll(".campaign-status-switcher-modal .status-btn").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const id = parseInt(e.currentTarget.dataset.id);
+        const newStatus = e.currentTarget.dataset.status;
+        closeDetailModal();
+        await changeCampaignStatus(id, newStatus);
       });
+    });
   }
 
   function formatDate(dateString) {
