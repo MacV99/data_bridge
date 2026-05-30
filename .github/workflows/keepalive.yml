@@ -2,6 +2,9 @@ name: Supabase keepalive
 
 # Mantiene vivo el proyecto Supabase (plan free lo pausa tras ~7 días sin uso).
 # Hace un SELECT mínimo cada día para que nunca llegue a pausarse.
+#
+# La URL y la anon key son PÚBLICAS (viajan en el bundle del navegador),
+# por eso van hardcodeadas y no hace falta configurar secrets.
 
 on:
   schedule:
@@ -11,6 +14,9 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: https://kjibjuiqunbsmfkqncgu.supabase.co
+      SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaWJqdWlxdW5ic21ma3FuY2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzA5ODQsImV4cCI6MjA4NTgwNjk4NH0.dNUyIqrmYzLBRmV6nsXv6gZ9hohvZ01ReS4bv8LqlAo
     steps:
       - name: Ping Supabase REST
         run: |
@@ -22,6 +28,3 @@ jobs:
           if [ "$code" -ge 400 ]; then
             echo "Keepalive falló"; exit 1
           fi
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
