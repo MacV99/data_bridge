@@ -543,6 +543,7 @@ import CreateCity from "../components/create_city.astro";
 
   function renderCampaignCard(campaign, selectMode = false) {
     const isSelected = selectedMontadaIds.has(campaign.id);
+    const phoneLast4 = String(campaign.phone_number ?? "").slice(-4);
     const selectedStyle = isSelected
       ? "border-color:var(--clr-accent);opacity:0.9;"
       : "";
@@ -556,7 +557,7 @@ import CreateCity from "../components/create_city.astro";
         <div class="campaign-header${selectMode ? "" : " clickable"}">
           <h5 class="${selectMode ? "" : "copy-city-name"}" data-city="${campaign.city_name}">${campaign.city_name}</h5>
           <p class="${selectMode ? "" : "copy-date"}" data-date="${formatDate(campaign.start_date)}"><i class="bi bi-calendar3"></i> ${formatDate(campaign.start_date)}</p>
-          <p class="${selectMode ? "" : "copy-phone-number"}" data-phone="${campaign.phone_number}"><i class="bi bi-telephone-fill"></i> ${campaign.phone_number}</p>
+          <p class="${selectMode ? "" : "copy-phone-number"}" data-phone="${phoneLast4}"><i class="bi bi-telephone-fill"></i> ${phoneLast4}</p>
         </div>
       </div>
     `;

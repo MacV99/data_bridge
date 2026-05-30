@@ -17,9 +17,9 @@
       <input
         id="phone-number"
         type="text"
-        placeholder="ÚLTIMOS 4 DÍGITOS"
-        maxlength="4"
-        pattern="[0-9]{4}"
+        placeholder="NÚMERO DE TELÉFONO"
+        maxlength="15"
+        pattern="[0-9]{6,15}"
         required
         class="form-select"
       />
@@ -594,8 +594,8 @@
       showAlertModal("Por favor selecciona la fecha de inicio");
       return;
     }
-    if (!phoneNumber || !/^\d{4}$/.test(phoneNumber)) {
-      showAlertModal("Por favor ingresa los últimos 4 dígitos del número");
+    if (!phoneNumber || !/^\d{6,15}$/.test(phoneNumber)) {
+      showAlertModal("Por favor ingresa un número de teléfono válido");
       return;
     }
 
