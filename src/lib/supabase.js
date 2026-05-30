@@ -3,4 +3,16 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    // App sin login: no persistir ni refrescar sesiones (evita trabajo inútil)
+    persistSession: false,
+    autoRefreshToken: false,
+  },
+  global: {
+    headers: { 'x-client-info': 'data-bridge' },
+  },
+});
+
+// Nombre del bucket de Storage para media nueva (imágenes/audio).
+export const MEDIA_BUCKET = 'campaign-media';

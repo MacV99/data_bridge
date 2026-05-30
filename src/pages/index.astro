@@ -431,6 +431,7 @@ import CreateCity from "../components/create_city.astro";
   //@ts-nocheck
   import {
     getCampaigns,
+    getCampaignById,
     deleteCampaign,
     updateCampaignStatus,
   } from "../lib/database.js";
@@ -443,6 +444,21 @@ import CreateCity from "../components/create_city.astro";
   let montadaSelectMode = false;
   let selectedMontadaIds = new Set();
 
+  // Caché del detalle completo (duplas + audio) por id de campaña.
+  // Se llena al pasar el mouse por la card (prefetch) → el click abre directo.
+  const detailCache = new Map();
+
+  function loadCampaignDetail(id) {
+    if (!detailCache.has(id)) {
+      const promise = getCampaignById(id).then((campaign) => {
+        if (!campaign) detailCache.delete(id); // no cachear fallos
+        return campaign;
+      });
+      detailCache.set(id, promise);
+    }
+    return detailCache.get(id);
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     $loadingInitial.style.display = "flex";
     try {
@@ -454,6 +470,7 @@ import CreateCity from "../components/create_city.astro";
   });
 
   window.addEventListener("campaignAdded", async () => {
+    detailCache.clear(); // el detalle pudo cambiar (crear/editar)
     const ok = await loadCampaigns();
     if (!ok) return;
     montadaSelectMode = false;
@@ -630,12 +647,28 @@ import CreateCity from "../components/create_city.astro";
 
   async function addCardClickListener() {
     document.querySelectorAll(".campaign-header.clickable").forEach((header) => {
+      const card = header.closest(".campaign-card");
+      const id = parseInt(card.dataset.id);
+
+      // Prefetch: al pasar el mouse (o tocar) se va cargando el detalle en background.
+      const prefetch = () => loadCampaignDetail(id);
+      header.addEventListener("pointerenter", prefetch);
+      header.addEventListener("pointerdown", prefetch);
+
       header.addEventListener("click", async (e) => {
         if (e.target.dataset.city || e.target.dataset.date || e.target.dataset.phone) return;
-        const card = e.currentTarget.closest(".campaign-card");
-        const id = parseInt(card.dataset.id);
-        const campaign = allCampaigns.find((c) => c.id === id);
-        if (campaign) openCampaignModal(campaign);
+
+        // Si el prefetch (hover) ya cargó el detalle, el await resuelve al
+        // instante y el spinner ni se llega a pintar → click directo.
+        $loadingInitial.style.display = "flex";
+        const campaign = await loadCampaignDetail(id);
+        $loadingInitial.style.display = "none";
+
+        if (campaign) {
+          openCampaignModal(campaign);
+        } else {
+          $errorOverlay.style.display = "flex";
+        }
       });
     });
   }
@@ -651,6 +684,7 @@ import CreateCity from "../components/create_city.astro";
     // Optimistic: remove from memory immediately, sync DB in background
     const index = allCampaigns.findIndex((c) => c.id === id);
     if (index === -1) return;
+    detailCache.delete(id);
     const [removed] = allCampaigns.splice(index, 1);
     renderCampaigns();
 
@@ -672,6 +706,7 @@ import CreateCity from "../components/create_city.astro";
     for (const { index } of removed) {
       allCampaigns.splice(index, 1);
     }
+    ids.forEach((id) => detailCache.delete(id));
     montadaSelectMode = false;
     selectedMontadaIds.clear();
     renderCampaigns();
@@ -691,6 +726,7 @@ import CreateCity from "../components/create_city.astro";
     if (!campaign) return;
     const previousStatus = campaign.status;
     campaign.status = newStatus;
+    detailCache.delete(id); // el detalle cacheado tiene el estado viejo
     renderCampaigns();
 
     const success = await updateCampaignStatus(id, newStatus);
@@ -778,15 +814,12 @@ import CreateCity from "../components/create_city.astro";
       if (e.target === $detailOverlay) closeDetailModal();
     });
 
-    $editBtn.addEventListener("click", async (e) => {
-      const id = parseInt(e.currentTarget.dataset.id);
-      const campaignToEdit = allCampaigns.find((c) => c.id === id);
-      if (campaignToEdit) {
-        window.dispatchEvent(
-          new CustomEvent("editCampaign", { detail: campaignToEdit }),
-        );
-        closeDetailModal();
-      }
+    $editBtn.addEventListener("click", async () => {
+      // `campaign` ya tiene duplas + audio (cargado al abrir el modal).
+      window.dispatchEvent(
+        new CustomEvent("editCampaign", { detail: campaign }),
+      );
+      closeDetailModal();
     });
 
     $deleteBtn.addEventListener("click", (e) => {
