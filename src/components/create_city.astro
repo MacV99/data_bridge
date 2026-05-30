@@ -386,7 +386,6 @@
 
     // Mostrar spinner y deshabilitar el botón guardar mientras convierte
     $audioFilename.textContent = "Convirtiendo...";
-    $audioConverting.style.display = "flex !important";
     $audioConverting.style.setProperty("display", "flex", "important");
     $saveButton.disabled = true;
 
@@ -665,15 +664,20 @@
       '<div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>';
 
     let success = false;
-    if (editingCampaignId) {
-      success = await updateCampaign(editingCampaignId, campaignData);
-    } else {
-      const result = await createCampaign(campaignData);
-      success = result !== null;
+    try {
+      if (editingCampaignId) {
+        success = await updateCampaign(editingCampaignId, campaignData);
+      } else {
+        const result = await createCampaign(campaignData);
+        success = result !== null;
+      }
+    } catch (err) {
+      console.error("Error al guardar la campaña:", err);
+      success = false;
+    } finally {
+      $saveButton.disabled = false;
+      $saveButton.textContent = "Guardar";
     }
-
-    $saveButton.disabled = false;
-    $saveButton.textContent = "Guardar";
 
     if (success) {
       window.dispatchEvent(new CustomEvent("campaignAdded"));
