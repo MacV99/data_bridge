@@ -674,11 +674,25 @@ import CreateCity from "../components/create_city.astro";
     });
   }
 
-  function downloadFile(dataUrl, fileName) {
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = fileName;
-    link.click();
+  async function downloadFile(dataUrl, fileName) {
+    // Fetch to blob so the download attribute works even for cross-origin
+    // Storage URLs (browsers ignore download= on cross-origin links).
+    try {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = fileName;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    } catch (err) {
+      // Fallback: direct link (works for same-origin / data URLs)
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = fileName;
+      link.click();
+    }
   }
 
   async function deleteCampaignHandler(id) {
@@ -876,7 +890,8 @@ import CreateCity from "../components/create_city.astro";
       const city = e.currentTarget.dataset.city;
       const date = e.currentTarget.dataset.date;
       const mimeMatch = audioData.match(/data:audio\/([a-zA-Z0-9]+);base64/);
-      const rawExt = mimeMatch ? mimeMatch[1] : "ogg";
+      const urlMatch = audioData.match(/\.([a-zA-Z0-9]+)(?:\?|$)/);
+      const rawExt = mimeMatch ? mimeMatch[1] : urlMatch ? urlMatch[1] : "mp3";
       const ext = rawExt === "mpeg" ? "mp3" : rawExt;
       downloadFile(audioData, `${date}-${city}-audio.${ext}`);
     });
